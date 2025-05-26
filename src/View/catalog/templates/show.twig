@@ -1,0 +1,108 @@
+{% extends "layout.twig" %}
+
+{% block title %}{{ template.name }} - Metadata Template{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <a href="/catalog/templates" class="text-blue-600 hover:text-blue-900">&larr; Back to Templates</a>
+    </div>
+
+    <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">{{ template.name }}</h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ template.description }}</p>
+                </div>
+                <div class="flex space-x-3">
+                    <a href="/catalog/templates/{{ template.id }}/edit"
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Edit Template
+                    </a>
+                    <form action="/catalog/templates/{{ template.id }}/delete" method="POST" class="inline">
+                        <button type="submit"
+                            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                            onclick="return confirm('Are you sure you want to delete this template?')">
+                            Delete Template
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-6 border-t border-gray-200">
+                <dl class="divide-y divide-gray-200">
+                    <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-medium text-gray-500">Metadata Standard</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ template.metadata_standard }}</dd>
+                    </div>
+
+                    <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-medium text-gray-500">Version</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ template.metadata_version }}</dd>
+                    </div>
+
+                    <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-medium text-gray-500">Default Template</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% if template.is_default %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Yes
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                No
+                            </span>
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                    <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-medium text-gray-500">Created</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ template.created_at|date('Y-m-d H:i:s') }}</dd>
+                    </div>
+
+                    <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-medium text-gray-500">Last Updated</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ template.updated_at|date('Y-m-d H:i:s') }}</dd>
+                    </div>
+
+                    <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-medium text-gray-500">Template XML</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <pre class="bg-gray-50 p-4 rounded-md overflow-x-auto"><code>{{ template.template_xml }}</code></pre>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+
+            <div class="mt-6">
+                <h4 class="text-sm font-medium text-gray-900">Template Fields</h4>
+                <div class="mt-2 bg-gray-50 p-4 rounded-md">
+                    <p class="text-sm text-gray-500">
+                        This template uses the following fields that can be filled when creating a dataset:
+                    </p>
+                    <ul class="mt-2 divide-y divide-gray-200">
+                        {% for field in fields %}
+                        <li class="py-2">
+                            <div class="flex justify-between">
+                                <div>
+                                    <span class="font-medium">{{ field.field_name }}</span>
+                                    {% if field.is_required %}
+                                    <span class="ml-2 text-xs text-red-600">Required</span>
+                                    {% endif %}
+                                </div>
+                                <span class="text-sm text-gray-500">{{ field.field_type }}</span>
+                            </div>
+                            {% if field.description %}
+                            <p class="mt-1 text-sm text-gray-500">{{ field.description }}</p>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

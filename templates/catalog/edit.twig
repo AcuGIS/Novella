@@ -1,0 +1,433 @@
+{% extends "layout.twig" %}
+
+{% block title %}Edit GIS Data - GIS Catalog{% endblock %}
+
+{% block head %}
+    <!-- OpenLayers CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/ol@7.4.0/ol.css">
+    <style>
+        #map {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 0.25rem;
+        }
+        .form-textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 0.25rem;
+            min-height: 100px;
+        }
+        .form-select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 0.25rem;
+        }
+        .form-checkbox {
+            margin-right: 0.5rem;
+        }
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .metadata-section {
+            background-color: #f9fafb;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <a href="/catalog/{{ dataset.id }}" class="text-blue-600 hover:text-blue-900">&larr; Back to Dataset</a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-3xl font-bold mb-6">Edit GIS Data</h1>
+
+        <form action="/catalog/{{ dataset.id }}/edit" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <!-- Basic Information -->
+            <div class="metadata-section">
+                <h2 class="text-xl font-semibold mb-4">Basic Information</h2>
+                
+                <div class="form-group">
+                    <label for="title" class="form-label">Title *</label>
+                    <input type="text" id="title" name="title" required
+                        class="form-input"
+                        value="{{ dataset.title }}">
+                    {% if errors.title %}
+                        <div class="error-message">{{ errors.title }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea id="description" name="description"
+                        class="form-textarea">{{ dataset.description }}</textarea>
+                    {% if errors.description %}
+                        <div class="error-message">{{ errors.description }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="abstract" class="form-label">Abstract</label>
+                    <textarea id="abstract" name="metadata[abstract]"
+                        class="form-textarea">{{ dataset.metadata.abstract|default('') }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="purpose" class="form-label">Purpose</label>
+                    <textarea id="purpose" name="metadata[purpose]"
+                        class="form-textarea">{{ dataset.metadata.purpose|default('') }}</textarea>
+                </div>
+            </div>
+
+            <!-- Spatial Information -->
+            <div class="metadata-section">
+                <h2 class="text-xl font-semibold mb-4">Spatial Information</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">Spatial Extent</label>
+                    <div id="map"></div>
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label for="westBound" class="form-label">West Bound Longitude</label>
+                            <input type="number" id="westBound" name="metadata[spatial_extent][coordinates][0][0][0]" step="any"
+                                class="form-input" value="{{ dataset.spatial_extent.coordinates[0][0][0] }}">
+                        </div>
+                        <div>
+                            <label for="eastBound" class="form-label">East Bound Longitude</label>
+                            <input type="number" id="eastBound" name="metadata[spatial_extent][coordinates][0][2][0]" step="any"
+                                class="form-input" value="{{ dataset.spatial_extent.coordinates[0][2][0] }}">
+                        </div>
+                        <div>
+                            <label for="southBound" class="form-label">South Bound Latitude</label>
+                            <input type="number" id="southBound" name="metadata[spatial_extent][coordinates][0][0][1]" step="any"
+                                class="form-input" value="{{ dataset.spatial_extent.coordinates[0][0][1] }}">
+                        </div>
+                        <div>
+                            <label for="northBound" class="form-label">North Bound Latitude</label>
+                            <input type="number" id="northBound" name="metadata[spatial_extent][coordinates][0][2][1]" step="any"
+                                class="form-input" value="{{ dataset.spatial_extent.coordinates[0][2][1] }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="crs" class="form-label">Coordinate Reference System</label>
+                    <input type="text" id="crs" name="metadata[crs]"
+                        class="form-input" value="{{ dataset.metadata.crs|default('EPSG:4326') }}"
+                        placeholder="e.g., EPSG:4326">
+                </div>
+
+                <div class="form-group">
+                    <label for="crsType" class="form-label">CRS Type</label>
+                    <select id="crsType" name="metadata[crsType]" class="form-select">
+                        <option value="geographic" {% if dataset.metadata.crsType == 'geographic' %}selected{% endif %}>Geographic</option>
+                        <option value="projected" {% if dataset.metadata.crsType == 'projected' %}selected{% endif %}>Projected</option>
+                        <option value="vertical" {% if dataset.metadata.crsType == 'vertical' %}selected{% endif %}>Vertical</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Temporal Information -->
+            <div class="metadata-section">
+                <h2 class="text-xl font-semibold mb-4">Temporal Information</h2>
+                
+                <div class="form-group">
+                    <label for="temporalStart" class="form-label">Start Date</label>
+                    <input type="datetime-local" id="temporalStart" name="metadata[temporalStart]"
+                        class="form-input" value="{{ dataset.metadata.temporalStart|default('') }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="temporalEnd" class="form-label">End Date</label>
+                    <input type="datetime-local" id="temporalEnd" name="metadata[temporalEnd]"
+                        class="form-input" value="{{ dataset.metadata.temporalEnd|default('') }}">
+                </div>
+            </div>
+
+            <!-- Responsible Parties -->
+            <div class="metadata-section">
+                <h2 class="text-xl font-semibold mb-4">Responsible Parties</h2>
+                
+                <div class="form-group">
+                    <label for="pointOfContactName" class="form-label">Point of Contact Name</label>
+                    <input type="text" id="pointOfContactName" name="metadata[pointOfContactName]"
+                        class="form-input" value="{{ dataset.metadata.pointOfContactName|default('') }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="pointOfContactOrg" class="form-label">Point of Contact Organization</label>
+                    <input type="text" id="pointOfContactOrg" name="metadata[pointOfContactOrg]"
+                        class="form-input" value="{{ dataset.metadata.pointOfContactOrg|default('') }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="pointOfContactEmail" class="form-label">Point of Contact Email</label>
+                    <input type="email" id="pointOfContactEmail" name="metadata[pointOfContactEmail]"
+                        class="form-input" value="{{ dataset.metadata.pointOfContactEmail|default('') }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="publisherName" class="form-label">Publisher Name</label>
+                    <input type="text" id="publisherName" name="metadata[publisherName]"
+                        class="form-input" value="{{ dataset.metadata.publisherName|default('') }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="publisherOrg" class="form-label">Publisher Organization</label>
+                    <input type="text" id="publisherOrg" name="metadata[publisherOrg]"
+                        class="form-input" value="{{ dataset.metadata.publisherOrg|default('') }}">
+                </div>
+            </div>
+
+            <!-- Data Quality -->
+            <div class="metadata-section">
+                <h2 class="text-xl font-semibold mb-4">Data Quality</h2>
+                
+                <div class="form-group">
+                    <label for="lineageStatement" class="form-label">Lineage Statement</label>
+                    <textarea id="lineageStatement" name="metadata[lineageStatement]"
+                        class="form-textarea">{{ dataset.metadata.lineageStatement|default('') }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="conformityStandard" class="form-label">Conformity Standard</label>
+                    <input type="text" id="conformityStandard" name="metadata[conformityStandard]"
+                        class="form-input" value="{{ dataset.metadata.conformityStandard|default('') }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="conformityDegree" class="form-label">Conformity Degree</label>
+                    <select id="conformityDegree" name="metadata[conformityDegree]" class="form-select">
+                        <option value="conformant" {% if dataset.metadata.conformityDegree == 'conformant' %}selected{% endif %}>Conformant</option>
+                        <option value="notConformant" {% if dataset.metadata.conformityDegree == 'notConformant' %}selected{% endif %}>Not Conformant</option>
+                        <option value="notEvaluated" {% if dataset.metadata.conformityDegree == 'notEvaluated' %}selected{% endif %}>Not Evaluated</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Access and Use Constraints -->
+            <div class="metadata-section">
+                <h2 class="text-xl font-semibold mb-4">Access and Use Constraints</h2>
+                
+                <div class="form-group">
+                    <label for="useConstraints" class="form-label">Use Constraints</label>
+                    <textarea id="useConstraints" name="metadata[useConstraints]"
+                        class="form-textarea">{{ dataset.metadata.useConstraints|default('') }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="accessConstraints" class="form-label">Access Constraints</label>
+                    <textarea id="accessConstraints" name="metadata[accessConstraints]"
+                        class="form-textarea">{{ dataset.metadata.accessConstraints|default('') }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="license" class="form-label">License</label>
+                    <input type="text" id="license" name="metadata[license]"
+                        class="form-input" value="{{ dataset.metadata.license|default('') }}">
+                </div>
+            </div>
+
+            <!-- Distribution -->
+            <div class="metadata-section">
+                <h2 class="text-xl font-semibold mb-4">Distribution</h2>
+                
+                <div class="form-group">
+                    <label for="distributionUrl" class="form-label">Distribution URL</label>
+                    <input type="url" id="distributionUrl" name="metadata[distributionUrl]"
+                        class="form-input" value="{{ dataset.metadata.distributionUrl|default('') }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="distributionFormat" class="form-label">Distribution Format</label>
+                    <input type="text" id="distributionFormat" name="metadata[distributionFormat]"
+                        class="form-input" value="{{ dataset.metadata.distributionFormat|default('') }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="distributorName" class="form-label">Distributor Name</label>
+                    <input type="text" id="distributorName" name="metadata[distributorName]"
+                        class="form-input" value="{{ dataset.metadata.distributorName|default('') }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="distributorOrg" class="form-label">Distributor Organization</label>
+                    <input type="text" id="distributorOrg" name="metadata[distributorOrg]"
+                        class="form-input" value="{{ dataset.metadata.distributorOrg|default('') }}">
+                </div>
+            </div>
+
+            <!-- Maintenance -->
+            <div class="metadata-section">
+                <h2 class="text-xl font-semibold mb-4">Maintenance</h2>
+                
+                <div class="form-group">
+                    <label for="updateFrequency" class="form-label">Update Frequency</label>
+                    <select id="updateFrequency" name="metadata[updateFrequency]" class="form-select">
+                        <option value="continual" {% if dataset.metadata.updateFrequency == 'continual' %}selected{% endif %}>Continual</option>
+                        <option value="daily" {% if dataset.metadata.updateFrequency == 'daily' %}selected{% endif %}>Daily</option>
+                        <option value="weekly" {% if dataset.metadata.updateFrequency == 'weekly' %}selected{% endif %}>Weekly</option>
+                        <option value="fortnightly" {% if dataset.metadata.updateFrequency == 'fortnightly' %}selected{% endif %}>Fortnightly</option>
+                        <option value="monthly" {% if dataset.metadata.updateFrequency == 'monthly' %}selected{% endif %}>Monthly</option>
+                        <option value="quarterly" {% if dataset.metadata.updateFrequency == 'quarterly' %}selected{% endif %}>Quarterly</option>
+                        <option value="biannually" {% if dataset.metadata.updateFrequency == 'biannually' %}selected{% endif %}>Biannually</option>
+                        <option value="annually" {% if dataset.metadata.updateFrequency == 'annually' %}selected{% endif %}>Annually</option>
+                        <option value="asNeeded" {% if dataset.metadata.updateFrequency == 'asNeeded' %}selected{% endif %}>As Needed</option>
+                        <option value="irregular" {% if dataset.metadata.updateFrequency == 'irregular' %}selected{% endif %}>Irregular</option>
+                        <option value="notPlanned" {% if dataset.metadata.updateFrequency == 'notPlanned' %}selected{% endif %}>Not Planned</option>
+                        <option value="unknown" {% if dataset.metadata.updateFrequency == 'unknown' %}selected{% endif %}>Unknown</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="maintenanceNotes" class="form-label">Maintenance Notes</label>
+                    <textarea id="maintenanceNotes" name="metadata[maintenanceNotes]"
+                        class="form-textarea">{{ dataset.metadata.maintenanceNotes|default('') }}</textarea>
+                </div>
+            </div>
+
+            <!-- File Upload -->
+            <div class="metadata-section">
+                <h2 class="text-xl font-semibold mb-4">File Information</h2>
+                
+                <div class="form-group">
+                    <label for="file" class="form-label">GIS File</label>
+                    <input type="file" id="file" name="file" accept=".shp,.geojson,.kml,.gml"
+                        class="form-input">
+                    {% if errors.file %}
+                        <div class="error-message">{{ errors.file }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Additional Settings -->
+            <div class="metadata-section">
+                <h2 class="text-xl font-semibold mb-4">Additional Settings</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">Visibility</label>
+                    <div class="flex items-center">
+                        <input type="hidden" name="is_public" value="0">
+                        <input type="checkbox" id="is_public" name="is_public" value="1"
+                            class="form-checkbox" {% if dataset.is_public %}checked{% endif %}>
+                        <label for="is_public">Make this dataset public</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="status" class="form-label">Status</label>
+                    <select id="status" name="status" class="form-select">
+                        <option value="draft" {% if dataset.status == 'draft' %}selected{% endif %}>Draft</option>
+                        <option value="published" {% if dataset.status == 'published' %}selected{% endif %}>Published</option>
+                        <option value="archived" {% if dataset.status == 'archived' %}selected{% endif %}>Archived</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-4">
+                <a href="/catalog/{{ dataset.id }}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://unpkg.com/ol@7.4.0/dist/ol.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize map
+    const map = new ol.Map({
+        target: 'map',
+        layers: [
+            new ol.layer.Tile({
+                source: new ol.source.OSM()
+            })
+        ],
+        view: new ol.View({
+            center: ol.proj.fromLonLat([0, 0]),
+            zoom: 2
+        })
+    });
+
+    // Add extent box
+    let extentBox = null;
+    const extentSource = new ol.source.Vector();
+    const extentLayer = new ol.layer.Vector({
+        source: extentSource,
+        style: new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'rgba(0, 0, 255, 1.0)',
+                width: 2
+            }),
+            fill: new ol.style.Fill({
+                color: 'rgba(0, 0, 255, 0.1)'
+            })
+        })
+    });
+    map.addLayer(extentLayer);
+
+    // Function to update extent box
+    function updateExtentBox() {
+        const west = parseFloat(document.getElementById('westBound').value) || 0;
+        const east = parseFloat(document.getElementById('eastBound').value) || 0;
+        const south = parseFloat(document.getElementById('southBound').value) || 0;
+        const north = parseFloat(document.getElementById('northBound').value) || 0;
+
+        if (west === 0 && east === 0 && south === 0 && north === 0) {
+            return;
+        }
+
+        const extent = ol.proj.transformExtent(
+            [west, south, east, north],
+            'EPSG:4326',
+            'EPSG:3857'
+        );
+
+        if (extentBox) {
+            extentSource.removeFeature(extentBox);
+        }
+
+        extentBox = new ol.Feature({
+            geometry: new ol.geom.Polygon.fromExtent(extent)
+        });
+        extentSource.addFeature(extentBox);
+        map.getView().fit(extent, { padding: [50, 50, 50, 50] });
+    }
+
+    // Add event listeners to extent inputs
+    ['westBound', 'eastBound', 'southBound', 'northBound'].forEach(id => {
+        document.getElementById(id).addEventListener('change', updateExtentBox);
+    });
+
+    // Initial extent box
+    updateExtentBox();
+});
+</script>
+{% endblock %} 

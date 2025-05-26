@@ -1,0 +1,20 @@
+# PHP Handler
+<FilesMatch "\.php$">
+    SetHandler "proxy:unix:/run/php/php8.3-fpm.sock|fcgi://localhost"
+</FilesMatch>
+
+# Test rewrite rule
+RewriteEngine On
+RewriteRule ^test-htaccess$ test-htaccess.php [L]
+
+# Main rewrite rules
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+
+# Enable CORS for OAI-PMH
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type"
+</IfModule> 

@@ -1,0 +1,13 @@
+                <div class="form-group">
+                    <label for="wmsUrl" class="form-label">WMS URL</label>
+                    <input type="url" id="wmsUrl" name="wms_url" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="schedule" class="form-label">Harvest Schedule (Cron Expression)</label>
+                    <input type="text" id="schedule" name="schedule" class="form-input" placeholder="e.g. 0 0 * * * (daily at midnight)">
+                    <p class="text-sm text-gray-500 mt-1">Leave empty for one-time import. Use cron expression format for scheduled harvesting.</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Select Layers to Import</label> 

@@ -1,0 +1,340 @@
+{% extends "layout.twig" %}
+
+{% block title %}Search Datasets{% endblock %}
+
+{% block content %}
+<div class="px-8 py-8">
+    <div class="text-left mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4 flex items-center gap-4">
+            <img src="/novella-icon.png" alt="Logo" class="h-12 w-auto">
+            <span>Novella</span>
+        </h1>
+        <p class="text-xl text-gray-600">Spatial Data Catalog and GeoPortal</p>
+    </div>
+
+    <div class="flex gap-8 max-w-[2000px] mx-auto">
+        <!-- Search Sidebar -->
+        <div class="w-80 flex-shrink-0">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-8">
+                <h2 class="text-lg font-semibold mb-4">Search Catalog</h2>
+                <form action="{{ url_for('public.datasets.page') }}" method="GET" class="space-y-4" id="searchForm">
+                    <div>
+                        <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+                        <input type="text" name="q" id="search" value="{{ request.query.q|default('') }}"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            placeholder="Search datasets...">
+                    </div>
+                    <div>
+                        <label for="metadata_standard" class="block text-sm font-medium text-gray-700">Metadata Standard</label>
+                        <select name="metadata_standard" id="metadata_standard"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">All Standards</option>
+                            <option value="ISO 19115" {% if request.query.metadata_standard == 'ISO 19115' %}selected{% endif %}>ISO 19115</option>
+                            <option value="ISO 19139" {% if request.query.metadata_standard == 'ISO 19139' %}selected{% endif %}>ISO 19139</option>
+                            <option value="INSPIRE" {% if request.query.metadata_standard == 'INSPIRE' %}selected{% endif %}>INSPIRE</option>
+                            <option value="FGDC" {% if request.query.metadata_standard == 'FGDC' %}selected{% endif %}>FGDC</option>
+                            <option value="OGC CSW" {% if request.query.metadata_standard == 'OGC CSW' %}selected{% endif %}>OGC CSW</option>
+                            <option value="Dublin Core" {% if request.query.metadata_standard == 'Dublin Core' %}selected{% endif %}>Dublin Core</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="topics" class="block text-sm font-medium text-gray-700">Topics</label>
+                        <select name="topics[]" id="topics" multiple
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            {% for topic in topics %}
+                            <option value="{{ topic.id }}" {% if request.query.topics is defined and topic.id in request.query.topics|map(t => t|number_format) %}selected{% endif %}>{{ topic.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="updated_at" class="block text-sm font-medium text-gray-700">Updated At</label>
+                        <input type="datetime-local" name="updated_at" id="updated_at" value="{{ request.query.updated_at }}"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <!-- Map Search UI -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Map</label>
+                        <div id="search-map" style="width: 100%; height: 200px; border: 1px solid #ccc; margin-bottom: 10px;"></div>
+                        <div class="flex justify-between mb-2">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="spatial_mode" value="any" {% if not request.query.spatial_mode or request.query.spatial_mode == 'any' %}checked{% endif %}>
+                                <span class="ml-1">Any</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="spatial_mode" value="intersects" {% if request.query.spatial_mode == 'intersects' %}checked{% endif %}>
+                                <span class="ml-1">Intersects</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="spatial_mode" value="within" {% if request.query.spatial_mode == 'within' %}checked{% endif %}>
+                                <span class="ml-1">Within</span>
+                            </label>
+                        </div>
+                        <!-- Hidden fields for map extent -->
+                        <input type="hidden" name="map_extent" id="map_extent" value="{{ request.query.map_extent|default('') }}">
+                        <input type="hidden" name="map_center" id="map_center" value="{{ request.query.map_center|raw|default('') }}">
+                        <input type="hidden" name="map_zoom" id="map_zoom" value="{{ request.query.map_zoom|raw|default('') }}">
+                    </div>
+                    <div>
+                        <button type="submit"
+                            class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-xl font-semibold mb-4">Datasets</h2>
+                {% if datasets is defined and datasets|length > 0 %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for dataset in datasets %}
+                    <div class="border rounded-lg overflow-hidden">
+                        <div class="p-4">
+                            {% if dataset.thumbnail_path %}
+                            <img src="/assets/thumbnails/{{ dataset.thumbnail_path }}" alt="Thumbnail" style="width:100%; height:120px; object-fit:cover; border-radius:8px; margin-bottom:12px; display:block;">
+                            {% else %}
+                            <img src="/assets/thumbnails/default.png" alt="Thumbnail" style="width:100%; height:120px; object-fit:cover; border-radius:8px; margin-bottom:12px; display:block;">
+                            {% endif %}
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">{{ dataset.title }}</h3>
+                            <p class="text-gray-600 text-sm mb-4">{{ dataset.description }}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-500">Last updated: {{ dataset.updated_at }}</span>
+                                <a href="/public/dataset/{{ dataset.id }}" class="text-blue-600 hover:text-blue-900">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <p class="text-gray-500 mb-4">No public datasets found.</p>
+                </div>
+                {% endif %}
+
+                {% if pagination is defined and pagination.pages > 1 %}
+                <div class="mt-8 flex justify-center">
+                    {% if app.debug %}
+                    <div class="mb-4 p-4 bg-gray-100 rounded">
+                        <h3 class="font-bold mb-2">Debug Info:</h3>
+                        <pre>Request Query: {{ dump(request.query) }}</pre>
+                        <pre>Map Extent: {{ dump(request.query.map_extent) }}</pre>
+                        <pre>Spatial Mode: {{ dump(request.query.spatial_mode) }}</pre>
+                    </div>
+                    {% endif %}
+
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        {% set queryParams = request.getQueryParams()|default({})|merge({'page': null}) %}
+                        {% set queryString = [] %}
+                        {% for key, value in queryParams %}
+                            {% if value is not empty and value is not null and key != 'page' %}
+                                {% if value is iterable %}
+                                    {% for v in value %}
+                                        {% set queryString = queryString|merge([key ~ '[]=' ~ v|url_encode]) %}
+                                    {% endfor %}
+                                {% else %}
+                                    {% set queryString = queryString|merge([key ~ '=' ~ value|url_encode]) %}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        {% set queryString = queryString|join('&') %}
+
+                        {% if app.debug %}
+                        <div class="mb-4 p-4 bg-gray-100 rounded">
+                            <pre>Query Params: {{ dump(queryParams) }}</pre>
+                            <pre>Query String: {{ dump(queryString) }}</pre>
+                        </div>
+                        {% endif %}
+
+                        {% if pagination.page > 1 %}
+                        <a href="{{ url_for('public.datasets.page') }}{{ queryString ? '?' ~ queryString ~ '&page=' ~ (pagination.page - 1) : '?page=' ~ (pagination.page - 1) }}"
+                            class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Previous</span>
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        {% endif %}
+
+                        {% for i in range(1, pagination.pages) %}
+                            {% if i == pagination.page %}
+                            <span class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600">
+                                {{ i }}
+                            </span>
+                            {% else %}
+                            <a href="{{ url_for('public.datasets.page') }}{{ queryString ? '?' ~ queryString ~ '&page=' ~ i : '?page=' ~ i }}"
+                                class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                {{ i }}
+                            </a>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if pagination.page < pagination.pages %}
+                        <a href="{{ url_for('public.datasets.page') }}{{ queryString ? '?' ~ queryString ~ '&page=' ~ (pagination.page + 1) : '?page=' ~ (pagination.page + 1) }}"
+                            class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Next</span>
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                    </nav>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if documents is defined and documents|length > 0 %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Public Documents</h2>
+                <div class="space-y-4">
+                    {% for doc in documents %}
+                    <div class="border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <span class="font-semibold">{{ doc.title }}</span>
+                            <span class="text-gray-500 text-xs ml-2">{{ doc.file_type|upper }}, {{ (doc.file_size / 1024)|round(2) }} KB</span>
+                            <div class="text-gray-600 text-sm">{{ doc.description }}</div>
+                        </div>
+                        <div class="mt-2 md:mt-0">
+                            <a href="{{ url_for('documents.download', {'filename': doc.file_path}) }}" class="text-blue-600 hover:underline" download>Download</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+#search-map {
+    position: relative;
+}
+#search-map .ol-attribution {
+    position: absolute !important;
+    bottom: 4px !important;
+    right: 4px !important;
+    left: auto !important;
+    top: auto !important;
+    background: rgba(255,255,255,0.7);
+    font-size: 11px;
+    z-index: 10;
+    max-width: 90%;
+    margin: 0 !important;
+    text-align: right;
+}
+</style>
+{# OpenLayers JS #}
+<script src="https://cdn.jsdelivr.net/npm/ol@v7.4.0/dist/ol.js"></script>
+<script>
+// Get URL parameters directly
+const urlParams = new URLSearchParams(window.location.search);
+const mapCenter = urlParams.get('map_center');
+const mapZoom = urlParams.get('map_zoom');
+const mapExtent = urlParams.get('map_extent');
+
+console.log('URL Parameters:', {
+    mapCenter,
+    mapZoom,
+    mapExtent
+});
+
+// Initialize the map
+const map = new ol.Map({
+    target: 'search-map',
+    layers: [
+        new ol.layer.Tile({
+            source: new ol.source.OSM()
+        })
+    ],
+    view: new ol.View({
+        // Initialize with stored values or defaults
+        center: (() => {
+            if (mapCenter) {
+                const centerCoords = mapCenter.split(',').map(Number);
+                console.log('Restoring center from URL:', centerCoords);
+                return ol.proj.fromLonLat(centerCoords);
+            }
+            console.log('Using default center');
+            return ol.proj.fromLonLat([0, 0]);
+        })(),
+        zoom: (() => {
+            const zoom = mapZoom ? Number(mapZoom) : 2;
+            console.log('Restoring zoom from URL:', zoom);
+            return zoom;
+        })()
+    })
+});
+
+function updateMapExtentField() {
+    const extent = map.getView().calculateExtent(map.getSize());
+    // Transform from map projection to lon/lat
+    const bottomLeft = ol.proj.toLonLat([extent[0], extent[1]]);
+    const topRight = ol.proj.toLonLat([extent[2], extent[3]]);
+    // Store as minLon,minLat,maxLon,maxLat
+    const value = `${bottomLeft[0]},${bottomLeft[1]},${topRight[0]},${topRight[1]}`;
+    document.getElementById('map_extent').value = value;
+}
+
+function updateMapViewFields() {
+    const center = ol.proj.toLonLat(map.getView().getCenter());
+    const zoom = map.getView().getZoom();
+    console.log('Updating map fields:', { center, zoom });
+    document.getElementById('map_center').value = `${center[0]},${center[1]}`;
+    document.getElementById('map_zoom').value = zoom;
+}
+
+// Update extent on map move
+map.on('moveend', () => {
+    updateMapExtentField();
+    updateMapViewFields();
+});
+
+// Set initial extent
+updateMapExtentField();
+
+// Update the form submission handler
+const form = document.getElementById('searchForm');
+form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Update all map-related fields
+    updateMapExtentField();
+    updateMapViewFields();
+    
+    // Get all form data
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+    
+    // Log form data before submission
+    console.log('Form data before submission:', {
+        map_center: formData.get('map_center'),
+        map_zoom: formData.get('map_zoom'),
+        map_extent: formData.get('map_extent')
+    });
+    
+    // Add all form fields to params
+    for (const [key, value] of formData.entries()) {
+        // Always include map-related fields
+        if (key === 'map_center' || key === 'map_zoom' || key === 'map_extent') {
+            if (value) {
+                params.append(key, value);
+            }
+        } else if (value) {
+            // For other fields, only include if they have a value
+            params.append(key, value);
+        }
+    }
+    
+    // Log final URL parameters
+    console.log('Final URL parameters:', params.toString());
+    
+    // Redirect to the search URL with all parameters
+    const finalUrl = form.action + (params.toString() ? '?' + params.toString() : '');
+    console.log('Redirecting to:', finalUrl);
+    window.location.href = finalUrl;
+});
+</script>
+{% endblock %} 

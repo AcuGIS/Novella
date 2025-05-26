@@ -1,0 +1,338 @@
+{% extends "layout.twig" %}
+
+{% block title %}OAI-PMH Harvesting{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">OAI-PMH Harvesting</h1>
+
+    <!-- Flash Messages -->
+    {% if session.flash %}
+    <div class="mb-4 p-4 rounded-md {% if session.flash.type == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+        {{ session.flash.message }}
+    </div>
+    {% endif %}
+
+    <!-- Add New Harvest Source -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4">Add New Harvest Source</h2>
+        <form action="/oai/harvest" method="POST" class="space-y-4">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                <input type="text" name="name" id="name" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <div>
+                <label for="url" class="block text-sm font-medium text-gray-700">Base URL</label>
+                <input type="url" name="url" id="url" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                <p class="mt-1 text-sm text-gray-500">Enter the base URL of the WMS server. Examples:</p>
+                <ul class="mt-1 text-sm text-gray-500 list-disc list-inside">
+                    <li>Standard WMS: https://example.com/wms</li>
+                    <li>GeoServer: https://example.com/geoserver</li>
+                    <li>MapServer: https://example.com/cgi-bin/mapserv</li>
+                </ul>
+            </div>
+            <div class="border-t border-gray-200 pt-4">
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Authentication (Optional)</h3>
+                <p class="text-sm text-gray-500 mb-4">Only required for protected servers. Most public WMS servers don't require authentication.</p>
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                    <input type="text" name="username" id="username"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div class="mt-4">
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" name="password" id="password"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+            </div>
+            <div>
+                <label for="set" class="block text-sm font-medium text-gray-700">Set Spec (optional)</label>
+                <input type="text" name="set" id="set"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <div>
+                <label for="schedule" class="block text-sm font-medium text-gray-700">Harvest Schedule</label>
+                <select name="schedule" id="schedule" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
+            </div>
+            <button type="submit"
+                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Add Source
+            </button>
+        </form>
+    </div>
+
+    <!-- Harvest Sources List -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold mb-4">Harvest Sources</h2>
+        {% if sources %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Schedule</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Harvest</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for source in sources %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ source.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ source.url }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ source.schedule }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {% if source.last_harvest %}
+                                {{ source.last_harvest|date('Y-m-d H:i:s') }}
+                                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Incremental
+                                </span>
+                            {% else %}
+                                <span class="text-gray-400">Never</span>
+                                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    Full
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {% if source.last_harvest %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    Pending
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex items-center space-x-4">
+                                <a href="/oai/harvest/{{ source.id }}/layers" class="text-indigo-600 hover:text-indigo-900">
+                                    {% if source.selected_layers|length > 0 %}
+                                        <span class="inline-flex items-center">
+                                            <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Configure Layers
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center">
+                                            <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                            </svg>
+                                            Select Layers
+                                        </span>
+                                    {% endif %}
+                                </a>
+                                {% if source.selected_layers|length > 0 %}
+                                    <form action="/oai/harvest/{{ source.id }}/run" method="POST" class="harvest-form inline">
+                                        <button type="submit" class="harvest-button text-indigo-600 hover:text-indigo-900 inline-flex items-center">
+                                            <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                            Run Harvest
+                                        </button>
+                                    </form>
+                                {% endif %}
+                                <a href="/oai/harvest/{{ source.id }}/edit" class="text-indigo-600 hover:text-indigo-900">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </a>
+                                <form action="/oai/harvest/{{ source.id }}/delete" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this harvest source? This will also delete all associated datasets and records.');">
+                                    <button type="submit" class="text-red-600 hover:text-red-900">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-gray-500">No harvest sources configured yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Loading Overlay with Progress -->
+<div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex items-center justify-center">
+    <div class="bg-white p-6 rounded-lg shadow-xl max-w-2xl w-full">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Harvesting in Progress</h3>
+            <div class="flex items-center space-x-4">
+                <a href="/oai/harvest/progress/{{ source.id }}/view" class="text-sm text-blue-600 hover:text-blue-800" target="_blank">
+                    View Progress
+                </a>
+                <button onclick="document.getElementById('loading-overlay').classList.add('hidden')" class="text-sm text-gray-600 hover:text-gray-800">
+                    Close
+                </button>
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+            <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+        </div>
+        
+        <!-- Status Text -->
+        <p id="status-text" class="text-sm text-gray-600 mb-4">Initializing harvest process...</p>
+        
+        <!-- Log Viewer -->
+        <div class="bg-gray-100 rounded p-4 h-64 overflow-y-auto font-mono text-sm">
+            <div id="log-content" class="space-y-1"></div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('.harvest-form');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const progressBar = document.getElementById('progress-bar');
+    const statusText = document.getElementById('status-text');
+    const logContent = document.getElementById('log-content');
+    let logCount = 0;
+    let harvestId = null;
+    let displayedLogs = new Set(); // Track displayed logs
+
+    function addLogEntry(message, type = 'info') {
+        // Create a unique key for the log entry
+        const logKey = `${message}-${type}`;
+        
+        // Only add if we haven't displayed this log before
+        if (!displayedLogs.has(logKey)) {
+            const entry = document.createElement('div');
+            entry.className = `text-${type === 'error' ? 'red' : 'gray'}-600`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContent.appendChild(entry);
+            logContent.scrollTop = logContent.scrollHeight;
+            logCount++;
+            displayedLogs.add(logKey);
+        }
+    }
+
+    function updateProgress(percent, message) {
+        progressBar.style.width = `${percent}%`;
+        statusText.textContent = message;
+    }
+
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const sourceId = this.querySelector('.harvest-button').dataset.sourceId;
+            const formData = new FormData(this);
+            
+            // Show loading overlay
+            loadingOverlay.classList.remove('hidden');
+            updateProgress(0, 'Starting harvest process...');
+            addLogEntry('Initializing harvest process...');
+            
+            // Update View Progress link
+            const progressLink = loadingOverlay.querySelector('a[href^="/oai/harvest/progress"]');
+            progressLink.href = `/oai/harvest/progress/${sourceId}/view`;
+            
+            // Submit the form
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        try {
+                            const errorData = JSON.parse(text);
+                            throw new Error(errorData.error || `Server error: ${response.status}`);
+                        } catch (e) {
+                            throw new Error(`Server error: ${response.status} - ${text}`);
+                        }
+                    });
+                }
+                return response.text();
+            })
+            .then(() => {
+                harvestId = sourceId;
+                addLogEntry('Harvest process started successfully');
+                pollProgress();
+            })
+            .catch(error => {
+                addLogEntry(error.message, 'error');
+                updateProgress(0, 'Error: ' + error.message);
+            });
+        });
+    });
+
+    function pollProgress() {
+        if (!harvestId) return;
+        
+        fetch(`/oai/harvest/${harvestId}/progress`)
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        try {
+                            const errorData = JSON.parse(text);
+                            throw new Error(errorData.error || `Server error: ${response.status}`);
+                        } catch (e) {
+                            throw new Error(`Server error: ${response.status} - ${text}`);
+                        }
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                updateProgress(data.progress, data.message);
+                
+                // Add new logs
+                if (data.logs) {
+                    data.logs.forEach(log => {
+                        if (typeof log === 'string') {
+                            addLogEntry(log);
+                        } else if (log.message) {
+                            addLogEntry(log.message, log.type || 'info');
+                        }
+                    });
+                }
+                
+                // Continue polling if not complete
+                if (data.status === 'in_progress') {
+                    setTimeout(pollProgress, 2000);
+                } else {
+                    addLogEntry(`Harvest ${data.status === 'completed' ? 'completed successfully' : 'failed'}`);
+                    if (data.status === 'completed_with_errors') {
+                        addLogEntry('Some records were processed with errors. Check the logs for details.', 'error');
+                    }
+                }
+            })
+            .catch(error => {
+                addLogEntry('Error checking progress: ' + error.message, 'error');
+                // Only retry if we haven't received a final status
+                if (statusText.textContent !== 'Harvest completed' && 
+                    statusText.textContent !== 'Harvest failed') {
+                    setTimeout(pollProgress, 5000); // Retry after 5 seconds
+                }
+            });
+    }
+});
+</script>
+{% endblock %} 

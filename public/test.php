@@ -1,0 +1,3 @@
+<?php
+echo "Testing PHP execution";
+phpinfo(); 

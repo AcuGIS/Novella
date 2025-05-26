@@ -1,0 +1,45 @@
+security:
+    password_hashers:
+        App\Model\User: 'auto'
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Model\User
+                property: username
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            lazy: true
+            provider: app_user_provider
+            form_login:
+                login_path: login
+                check_path: login
+                enable_csrf: true
+                username_parameter: _username
+                password_parameter: _password
+            logout:
+                path: logout
+                target: home
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800 # 1 week in seconds
+                path: /
+
+    access_control:
+        # Private API routes
+        - { path: ^/api/private, roles: ROLE_USER }
+        - { path: ^/api/admin, roles: ROLE_ADMIN }
+        
+        # Public API routes (no authentication required)
+        - { path: ^/api/public, roles: PUBLIC_ACCESS }
+        
+        # Other routes
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/$, roles: PUBLIC_ACCESS } 

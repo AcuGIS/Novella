@@ -1,0 +1,47 @@
+{% extends "layout.twig" %}
+
+{% block title %}GeoLibre GIS Catalog{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="text-left mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Novella</h1>
+        <p class="text-xl text-gray-600">A lightweight spatial data catalog with ISO 19115 metadata and OAI-PMH harvesting</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- GIS Catalog Card -->
+        <div class="bg-white rounded-lg overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-2xl font-semibold text-gray-900 mb-4">Catalog</h2>
+                <p class="text-gray-600 mb-6">Browse and search through our collection of GIS datasets.</p>
+                <a href="/catalog" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    View Catalog
+                </a>
+            </div>
+        </div>
+
+        <!-- Metadata Card -->
+        <div class="bg-white rounded-lg overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-2xl font-semibold text-gray-900 mb-4">Metadata</h2>
+                <p class="text-gray-600 mb-6">Access ISO 19115 compliant metadata for all datasets.</p>
+                <a href="/metadata" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    View Metadata
+                </a>
+            </div>
+        </div>
+
+        <!-- OAI-PMH Card -->
+        <div class="bg-white rounded-lg overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-2xl font-semibold text-gray-900 mb-4">OAI-PMH</h2>
+                <p class="text-gray-600 mb-6">Harvest spatial metadata using the OAI-PMH protocol.</p>
+                <a href="/oai/harvest" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    OAI-PMH Service
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

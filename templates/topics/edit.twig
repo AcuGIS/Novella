@@ -1,0 +1,52 @@
+{% extends "base.twig" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6">{{ topic.id ? 'Edit Topic' : 'Create Topic' }}</h1>
+
+        <form action="{{ topic.id ? '/topics/' ~ topic.id : '/topics' }}" method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
+                    Name
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                       id="name" type="text" name="name" value="{{ topic.name }}" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="description">
+                    Description
+                </label>
+                <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                          id="description" name="description" rows="4">{{ topic.description }}</textarea>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2">
+                    Associated Datasets
+                </label>
+                <div class="max-h-60 overflow-y-auto border rounded p-4">
+                    {% for dataset in datasets %}
+                    <div class="mb-2">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="datasets[]" value="{{ dataset.id }}"
+                                   class="form-checkbox h-4 w-4 text-blue-600"
+                                   {% if dataset.id in topic.datasets|column('id') %}checked{% endif %}>
+                            <span class="ml-2">{{ dataset.title }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                    {{ topic.id ? 'Update Topic' : 'Create Topic' }}
+                </button>
+                <a href="/topics" class="text-gray-600 hover:text-gray-800">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 
