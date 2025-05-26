@@ -1,7 +1,7 @@
 # Novella
 
 
-# GeoLibre GIS Catalog
+# Novella GIS Catalog
 
 A modern PHP application for managing, harvesting, and sharing GIS data with ISO 19115 metadata support and OAI-PMH functionality.
 
@@ -18,7 +18,7 @@ A modern PHP application for managing, harvesting, and sharing GIS data with ISO
 ## Requirements
 
 - PHP 8.1 or higher
-- PostgreSQL 12 or higher
+- PostgreSQL 15 or higher
 - Composer
 - Apache/Nginx web server
 - PHP extensions: pgsql, json, xml, mbstring
@@ -89,6 +89,32 @@ geolibre/
 ├── tests/            # Test files
 └── var/              # Runtime files
 ```
+
+## API Documentation
+
+Public API Endpoints
+
+Endpoint	Method	Description
+
+/api/public/stats	GET	Get catalog statistics
+
+/api/public/datasets	GET	List public datasets
+
+/api/public/datasets/{id}	GET	Get specific dataset details
+
+/api/public/metadata	GET	Search public metadata
+
+/api/public/metadata/{id}	GET	Get specific metadata record
+
+Authentication
+
+The following authentication endpoints are available:
+
+POST /api/public/auth/login - User login
+
+POST /api/public/auth/logout - User logout
+
+POST /api/public/auth/register - User registration
 
 ## License
 
