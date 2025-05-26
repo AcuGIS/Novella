@@ -1,6 +1,7 @@
 # Novella
 
-novella-github.jpg
+![Novella](docs/novella-github.jpg)
+
 
 
 # Novella GIS Catalog
