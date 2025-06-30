@@ -28,41 +28,46 @@ Add Dataset
 
 To manually add a dataset, complete the required fields
 
-1
+Click Add Metadata in top menu
 
 .. image:: ../../_static/metadata-add-1.png
 
-2
+
+Enter the values for Identication Information section
 
 .. image:: ../../_static/metadata-add-2.png
 
 
-3
+Enter the values for the Citation section
 
 .. image:: ../../_static/metadata-add-3.png
 
-4
+If using a WMS Service, enter the url and click Fetch Layers
 
 .. image:: ../../_static/metadata-add-4.png
 
-5
+Select layer from dropdown
 
 .. image:: ../../_static/metadata-add-5.png
 
-6
+Note that Layer appears and Spatial Extent fields are populated:
 
 .. image:: ../../_static/metadata-add-6.png
 
-7
+
+
+For a GIS Data File, such as GeoPackage, GeoTIFF, Shapefile, etc....
+
+Click Choose File Button
 
 .. image:: ../../_static/metadata-add-7.png
 
-8
+Select the data file you wish to upload
 
 .. image:: ../../_static/metadata-add-8.png
 
 
-9
+Note that Spatial Extent fields are populated and Bounding Box appears
 
 .. image:: ../../_static/metadata-add-9.png
 
