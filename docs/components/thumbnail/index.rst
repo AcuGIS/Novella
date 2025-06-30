@@ -14,11 +14,19 @@ Custom Thumbnail
 Overview
 ==================
 
-By default, the report icon displayed in the Dashboard is assets/maps/default.png
+By default, datasets use a default thumbnail located at::  
 
-You can set custom thumbnails for your reports by simply adding <reportid>.png to the assets/maps directory.
+   storage/uploads/thumbnails/default.png
 
-.. image:: Custom-Thumbnail.png
+You can set custom thumbnails for your datasets by following below.
+
+Go to the dataset and click Edit Metadata
+
+.. image:: ../../_static/thumbnail-edit.png
+
+Upload the custom thumbnail
+
+.. image:: ../../_static/thumbnail-1.png
 
 
 
