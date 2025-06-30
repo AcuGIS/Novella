@@ -1,7 +1,7 @@
 Novella
 ==================================================
 
-.. image:: _static/Jasper-Publisher-Main-min.png
+.. image:: _static/novella-main.png
 
 
 .. include:: ../README.rst
