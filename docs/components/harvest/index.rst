@@ -20,38 +20,72 @@ The OAi-PMH Harvest function can be used to import dataasets
 Create
 =====================
 
-To create a Harvest, give your Harvest a name:
+To create a Harvest, give your Harvest a name, enter the WMS Url, and click Fetch Layers
+
+For example:  https://wms.gebco.net/mapserv?request=getcapabilities&service=wms&version=1.3.0
+
+
+.. image:: ../../_static/harvest-name.png
+
+
+Select the layers you wish to harvest
+
+.. image:: ../../_static/harvest-layers.png
+
+
+Click the Save button
+
+.. image:: ../../_static/harvest-save.png
+
+The Harvest job should now appear in Harvest History as shown below.
+
+Click the Run button to begin harvesting
+
+.. image:: ../../_static/harvest-history.png
+
+
+You should see a message that harvest is completed
+
+.. image:: ../../_static/harvest-completed.png
 
 
 
-
-
-https://wms.gebco.net/mapserv?request=getcapabilities&service=wms&version=1.3.0
-
-Enter the following information:
-
-* Paramater Type	- Enter 'dropdown'
-* Paramater Name - The name of Paramater
-* Paramater Values - Enter a comma separated list of values (in our example, Apis Mellifera Mellifera, Apis Mellifera, and Apis Mellifera Carnica)
-* Report Name - Select the report Parameter will be applied to.  
-
-.. image:: ../../_static/parameter-2-1.png
-
-
-Once you save the paramter, it will now appear on the Report Dashboard as below:
-
-.. image:: ../../_static/report-parameter-lov-display.png
-.
-On click, the dropdown/LOV will display as below:
-
-.. image:: ../../_static/lov-parameter.png
-
-
-
-Query Parameter
+Harvested Datasets
 =====================
 
-To add a Query parameter, click the "Add New" button at top.
+With the harvest completed, you should now see the harvested datasets
+
+.. image:: ../../_static/harvest-datasets-1.png
+
+
+It's important to note that by default, all harvested datasets are set to Private.
+
+This allows you a chance to reivew and edit datasets prior to publication
+
+.. image:: ../../_static/harvest-private.png
+
+
+Edit
+=====================
+
+Harvested datasets can be edited like any other datasets.
+
+This is useful for when the harvested data contains incomplete information, such as Responsible Parties below.
+
+.. image:: ../../_static/harvest-edits.png
+
+
+
+.. warning:: 
+   Unless you update the harvest query, scheduled or subsequent harvests will overwrite any edits.
+
+
+
+
+Delete
+=====================
+
+To 
 
 .. image:: ../../_static/parameter-3-1.png
 
