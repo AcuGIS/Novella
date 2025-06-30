@@ -85,27 +85,16 @@ This is useful for when the harvested data contains incomplete information, such
 Delete
 =====================
 
-To 
+To delete a harvest, click the Delete link in harvest history
 
-.. image:: ../../_static/parameter-3-1.png
+.. warning:: 
+   Deleting a harvest will delete all datasets produced by the harvest.
 
-Enter the following information:
 
-* Paramater Type	- Enter 'query'
-* Paramater Name - Display name of Paramater
-* Paramater Values - Comma separated list of Parameters to be used
-* Report Name - Select the report Parameter will be applied to.
-
-In the example below, the Values we entered are the Jasper parameters Cost_Greater_Than and Cost_Less_Than.
-
-.. image:: ../../_static/parameter-report-5-1.png
-
-Edit Parameter
+Scheduling
 ===================
-To edit a Parameter entry, click the Edit icon
 
-Delete Parameter
-===================
-To delete a Parameter entry, click the Delete icon
+Schedulong is set in Harvest form and can be updated via the Edit link
+
 
 
