@@ -83,38 +83,30 @@ Populate the Data Quality fields
 
 .. image:: ../../_static/metadata-add-12.png
 
-13
+Populate the INSPIRE Metadata fields
 
 .. image:: ../../_static/metadata-add-13.png
 
-14
+Populate the Additional Metadata fields
 
 .. image:: ../../_static/metadata-add-14.png
 
-15
+Populate the Distribution Information fields
 
 .. image:: ../../_static/metadata-add-15.png
 
-Select Type (JNDI or JDBC)
 
-Data Source Name (this should match name used in Jasper Report Adapter)
 
-URL: The JDBC URL (e.g. jdbc:postgresql://localhost:5432/beedatabase)
-
-Username
-
-Password
-
-You can add as many Data Sources as you wish to:
-
-.. image:: ../../_static/data-source-2.png
-
-Restart Tomcat
+Edit Dataset
 ================
 
 You must restart Tomcat after adding or editing Data Sources in order to pick up the new configuration
 
 .. image:: ../../_static/tomcat-restart.png
+
+
+Delete Dataset
+================
 
 
 
