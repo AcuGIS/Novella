@@ -13,53 +13,31 @@ Keywords
 Overview
 ==================
 
-Jasper Publisher allows you to set SMTP credentials for email.
+Keywords (GMET) can be managed via the Keyword page.
 
-It also provides email HTML Template functionality.
-
-SMTP Settings
+Add Keyword
 =====================
 
-SMTP settings are entered during setup.
+To add a Keyword, enter the Keyword and a descriptiona and click Add Keyword
 
-They can also be added or edited at any time via /var/www/.muttrc
+.. image:: ../../_static/keyword-add.png
 
-The contents should be as below::
-
-  set copy = no
-  set from = 'Jasper Publisher <you@yourdomain.com>'
-  set smtp_url = 'smtp://you@yourdomain.com:Password@mail.yourdomain.com:587/'
+Keyword will now appear in Dataset creation dropdown as well as Keyword Search on the home page.
 
 
-Email HTML Templates
+Edit Keyword
 =====================
 
-The directory for storing HTML templates for email is::
+To edit a Keyword, click the Edit link for the Keyword
 
-     /home/tomcat/apache-tomcat-version/jasper_reports/email_tmpl 
+.. image:: ../../_static/keyword-edit.png
 
-This directory contains a started template you can customize (email_template.html).
 
-You can also add your own templates to this directory as well.
-
-Any templates in this directory will appear in the dropdown box on the Report Schedule page;
-
-.. image:: ../../_static/schedule-4.png
-
-Using the included email_template.html, the Report email will look like below:
-
-.. image:: ../../_static/email-templates.png
-
-PostFix
+Delete Keyword
 =====================
 
-By default, Jasper Report Publisher installs PostFix as MTA
+To delete a Keyword, click the Delete link for the Keyword
 
-This can be subsituted with Sendmail or any other MTA you wish to use.
-
-MUTT
-===================
-Jasper Publisher uses MUTT email client.
-
+.. image:: ../../_static/keyword-delete.png
 
 
