@@ -52,5 +52,11 @@ Sample Data
 The default installation include two sample datasets.
 
 
+Default Login
+===================
 
+The default admin username and password are:
+
+Username:  admin
+Password:  Novella
 
