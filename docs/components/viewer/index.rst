@@ -7,7 +7,7 @@
    :width: 1em
 
 **********************
-Reports
+Viewer
 **********************
 
 .. contents:: Table of Contents
