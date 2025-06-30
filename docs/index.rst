@@ -1,4 +1,4 @@
-Jasper Report Publisher
+Novella
 ==================================================
 
 .. image:: _static/Jasper-Publisher-Main-min.png
@@ -22,21 +22,16 @@ Jasper Report Publisher
     components/dashboard/index
     components/users/index
     components/usergroups/index
-    components/data/index
+    components/datasets/index
     components/publish/index
     components/schedule/index
-    components/reports/index
-    components/parameters/index
-    components/run/index
-    components/email/index
-    components/qgis/index
-    components/r/index
-    components/reportgroups/index
-    components/context/index
-    components/links/index
+    components/harvest/index
+    components/topics/index
+    components/keywords/index
     components/thumbnail/index
-    components/tomcat/index
-    components/structure/index
+    components/demos/index
+    components/viewer/index
+
     
 .. toctree::
     :maxdepth: 3
