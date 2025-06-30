@@ -71,15 +71,15 @@ Note that Spatial Extent fields are populated and Bounding Box appears
 
 .. image:: ../../_static/metadata-add-9.png
 
-10
+Populate the Temporal Extent fields
 
 .. image:: ../../_static/metadata-add-10.png
 
-11
+Populate the Spatial Representation fields
 
 .. image:: ../../_static/metadata-add-11.png
 
-12
+Populate the Restraints fields
 
 .. image:: ../../_static/metadata-add-12.png
 
