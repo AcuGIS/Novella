@@ -13,17 +13,20 @@ Harvest
 Overview
 ==================
 
-JRI Viewer supports two Parameter types.
-
-* Dropdown/LOV - a definded List of Values
-* Query - User entered parameters
+The OAi-PMH Harvest function can be used to import dataasets
 
 
 
-Dropdown/LOV Parameter
+Create
 =====================
 
-To add an LOV parameter, click the "Add New" button at top.
+To create a Harvest, give your Harvest a name:
+
+
+
+
+
+https://wms.gebco.net/mapserv?request=getcapabilities&service=wms&version=1.3.0
 
 Enter the following information:
 
