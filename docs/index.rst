@@ -21,7 +21,6 @@ Novella
 
     components/dashboard/index
     components/users/index
-    components/usergroups/index
     components/datasets/index
     components/publish/index
     components/schedule/index
