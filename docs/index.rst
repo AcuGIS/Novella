@@ -28,6 +28,7 @@ Novella
     components/thumbnail/index
     components/demos/index
     components/viewer/index
+    components/fields/index
     components/api/index
 
     
