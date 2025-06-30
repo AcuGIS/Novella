@@ -7,7 +7,7 @@
    :width: 1em
 
 **********************
-Data Sources
+Datasets
 **********************
 
 .. contents:: Table of Contents
