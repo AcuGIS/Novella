@@ -14,28 +14,38 @@ Topics
 Overview
 ==================
 
-You can a Context ares to any report.
+Topics can be managed via the Topics page.
 
-A Context area provides supporting information, links, and any other HTML content you wish to add.
+Add Topic
+=====================
 
-.. image:: JRI-Viewer-Context.png
+To add a Topic, enter the Keyword and a descriptiona and click Add Topic
 
-Add Context
-================
+.. image:: ../../_static/topic-add-1.png
 
-To add a new Context, click the "Add New" button at top.
+Topic will now appear in Dataset creation dropdown as well as Keyword Search on the home page.
 
-Select the report from the drop down menu as show below:
 
-.. image:: Context-2.png
+Edit Topic
+=====================
 
-Enter the Context to appear next to the generated report.  
+To edit a Topic, click the Edit link for the Keyword
 
-Edit Context
-======================
-To edit a Context, click the edit link as shown below
+.. image:: ../../_static/top-edit-1.png
 
-.. image:: Set-Context.png
+
+Delete Topic
+=====================
+
+To delete a Topic, click the Delete link for the Topic
+
+.. image:: ../../_static/topic-delete-1.png
+
+
+
+
+
+
 
 
 

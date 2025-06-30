@@ -19,10 +19,8 @@ Novella
     :maxdepth: 3
     :caption: Administration
 
-    components/dashboard/index
     components/users/index
     components/datasets/index
-    components/publish/index
     components/schedule/index
     components/harvest/index
     components/topics/index
@@ -30,6 +28,8 @@ Novella
     components/thumbnail/index
     components/demos/index
     components/viewer/index
+    components/fields/index
+    components/api/index
 
     
 .. toctree::
