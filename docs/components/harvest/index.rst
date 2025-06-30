@@ -87,6 +87,9 @@ Delete
 
 To delete a harvest, click the Delete link in harvest history
 
+
+.. image:: ../../_static/harvest-delete.png
+
 .. warning:: 
    Deleting a harvest will delete all datasets produced by the harvest.
 
