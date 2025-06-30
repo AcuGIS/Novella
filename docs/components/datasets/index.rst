@@ -14,44 +14,98 @@ Datasets
 Overview
 ==================
 
-Data Sources are added via the Data Source menu.
+Datasets can be added Manually or via Harvesting
 
-By default, Jasper Report Publisher includes support for the following:
+For harvesting, see Harvest section.
 
-PostgreSQL (JNDI)
-Oracle (JDBC and JNDI)
-MySQL (JNDI)
-MSSQL (JNDI)
-
-Add Data Source
+Add Dataset
 ================
 
-To add a new Link, click the "Add New" button at top.
+To manually add a dataset, complete the required fields
 
-.. image:: ../../_static/data-source-1.png
+Click Add Metadata in top menu
 
-Select Type (JNDI or JDBC)
+.. image:: ../../_static/metadata-add-1.png
 
-Data Source Name (this should match name used in Jasper Report Adapter)
 
-URL: The JDBC URL (e.g. jdbc:postgresql://localhost:5432/beedatabase)
+Enter the values for Identication Information section
 
-Username
+.. image:: ../../_static/metadata-add-2.png
 
-Password
 
-You can add as many Data Sources as you wish to:
+Enter the values for the Citation section
 
-.. image:: ../../_static/data-source-2.png
+.. image:: ../../_static/metadata-add-3.png
 
-Restart Tomcat
+If using a WMS Service, enter the url and click Fetch Layers
+
+.. image:: ../../_static/metadata-add-4.png
+
+Select layer from dropdown
+
+.. image:: ../../_static/metadata-add-5.png
+
+Note that Layer appears and Spatial Extent fields are populated:
+
+.. image:: ../../_static/metadata-add-6.png
+
+
+
+For a GIS Data File, such as GeoPackage, GeoTIFF, Shapefile, etc....
+
+Click Choose File Button
+
+.. image:: ../../_static/metadata-add-7.png
+
+Select the data file you wish to upload
+
+.. image:: ../../_static/metadata-add-8.png
+
+
+Note that Spatial Extent fields are populated and Bounding Box appears
+
+.. image:: ../../_static/metadata-add-9.png
+
+Populate the Temporal Extent and Spatial Representation fields
+
+.. image:: ../../_static/metadata-add-10.png
+
+Populate the Constraints fields
+
+.. image:: ../../_static/metadata-add-11.png
+
+Populate the Data Quality fields
+
+.. image:: ../../_static/metadata-add-12.png
+
+Populate the INSPIRE Metadata fields
+
+.. image:: ../../_static/metadata-add-13.png
+
+Populate the Additional Metadata fields
+
+.. image:: ../../_static/metadata-add-14.png
+
+Populate the Distribution Information fields
+
+.. image:: ../../_static/metadata-add-15.png
+
+
+
+Edit Dataset
 ================
 
-You must restart Tomcat after adding or editing Data Sources in order to pick up the new configuration
+To edit a dataset, click the Edit Metadata button
 
-.. image:: ../../_static/tomcat-restart.png
+.. image:: ../../_static/metadata-add-edit.png
 
 
+Delete Dataset
+================
+
+To delete a dataset, click the Delete Dataset button
+
+.. image:: ../../_static/metadata-add-delete.png
 
 
 
