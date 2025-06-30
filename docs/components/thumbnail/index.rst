@@ -29,6 +29,6 @@ Upload the custom thumbnail
 .. image:: ../../_static/thumbnail-1.png
 
 
-
+Be sure to click Save Dataset at bottom to save changes.
 
 
