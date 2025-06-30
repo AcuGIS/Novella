@@ -43,7 +43,6 @@ Novella
     :caption: Resources
 
     resources/css
-    resources/security
     resources/support
     resources/commercial
     resources/license
