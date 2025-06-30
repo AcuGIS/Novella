@@ -14,14 +14,9 @@ Datasets
 Overview
 ==================
 
-Data Sources are added via the Data Source menu.
+Datasets can be added Manually or via Harvesting
 
-By default, Jasper Report Publisher includes support for the following:
-
-PostgreSQL (JNDI)
-Oracle (JDBC and JNDI)
-MySQL (JNDI)
-MSSQL (JNDI)
+For harvesting, see Harvest section.
 
 Add Dataset
 ================
@@ -100,15 +95,17 @@ Populate the Distribution Information fields
 Edit Dataset
 ================
 
-You must restart Tomcat after adding or editing Data Sources in order to pick up the new configuration
+To edit a dataset, click the Edit Metadata button
 
-.. image:: ../../_static/tomcat-restart.png
+.. image:: ../../_static/metadata-add-edit.png
 
 
 Delete Dataset
 ================
 
+To delete a dataset, click the Delete Dataset button
 
+.. image:: ../../_static/metadata-add-delete.png
 
 
 
