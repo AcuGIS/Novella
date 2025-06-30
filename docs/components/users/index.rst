@@ -20,10 +20,14 @@ You can begin by creatting Users and then Groups, or vice versa.
 User Types
 ==================
 
-Jasper Report Publisher supports the following User types:
+Novell supports the following User types.
 
-1. Admins.  Can create Data Sources, Publish Reports, and create Schedules.
-2. Users.   Can consume reports via Dashboard
+Additional types can be added.
+
+1. Admins:  All system privilages
+3. Publisher: Can publish and harvest datasets
+2. Editor:   Can edit datasets
+
 
 Add New User
 ================
