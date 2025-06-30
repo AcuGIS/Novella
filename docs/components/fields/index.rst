@@ -12,6 +12,7 @@ Adding New Fields for Datasets
 This application is designed to be extensible, allowing you to add new metadata fields as needed. Here's how to add new fields to datasets:
 
 Step 1: Database Migration
+---------------------------
 
 Create a new migration file in the `database/migrations/` directory::
 
@@ -25,6 +26,7 @@ Create a new migration file in the `database/migrations/` directory::
 
 
 Step 2: Update the Form Template
+---------------------------
 
 Add the new field to the form in `templates/form.twig`::
 
@@ -37,6 +39,7 @@ Add the new field to the form in `templates/form.twig`::
     </div>
 
 Step 3: Update the Controller
+---------------------------
 
 Modify the relevant controller (usually `src/Controllers/GisController.php`) to handle the new field::
 
@@ -45,6 +48,7 @@ Modify the relevant controller (usually `src/Controllers/GisController.php`) to 
     *   Update any display logic to show the new field
 
 Step 4: Update Display Templates
+---------------------------
 
 Add the new field to display templates like `templates/dataset_detail.twig`::
 
@@ -54,6 +58,7 @@ Add the new field to display templates like `templates/dataset_detail.twig`::
 
 
 Step 5: Update XML Export
+---------------------------
 
 If the field should be included in XML exports, update the XML generation logic in the controller.
 
@@ -70,6 +75,7 @@ Common Field Types
 **Array fields:** `TEXT[]` for multiple values
 
 Best Practices
+---------------------------
 
 *   Always use `IF NOT EXISTS` in migrations to prevent errors
 *   Add meaningful comments to database columns
@@ -79,6 +85,7 @@ Best Practices
 *   Update documentation when adding new fields
 
 Example: Adding a "Data Source" Field
+---------------------------
 
 Here's a complete example of adding a "Data Source" field:
 
