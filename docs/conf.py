@@ -49,7 +49,7 @@ html_css_files = [
 pygments_style = "sphinx"
 
 
-html_logo = "_static/novella-logo.png"
+html_logo = "_static/novella.png"
 html_theme_options = {
     'logo_only': True,
     'display_version': False,
