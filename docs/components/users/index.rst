@@ -13,9 +13,7 @@ Users
 Overview
 ==================
 
-Jasper Report Publisher grants permissions on Reports to User Groups.
-
-You can begin by creatting Users and then Groups, or vice versa.
+Novella includes basic role based permissions.
 
 User Types
 ==================
@@ -24,9 +22,9 @@ Novell supports the following User types.
 
 Additional types can be added.
 
-1. Admins:  All system privilages
-3. Publisher: Can publish and harvest datasets
-2. Editor:   Can edit datasets
+- Admins:  All system privilages
+- Publisher: Can publish and harvest datasets
+- Editor:   Can edit datasets
 
 
 Add New User
@@ -36,29 +34,31 @@ To create a new user, click on Users on the left menu.
 
 Click the Add User button
 
-.. image:: ../../_static/add-user.png
+.. image:: ../../_static/add-user-button.png
 
-Enter the required information and be sure to set the Access Level (Admin or User)
+Enter the required information and be sure to set the Access Level (Admin, Publisher, or Editor)
 
-.. image:: ../../_static/add-user-2.png
+.. image:: ../../_static/add-users.png
 
 If the Group(s) you wish to add To add the user to are already created, you can add them as below:
 
 .. image:: ../../_static/add-user-2-alt.png
 
 
-Edit Group Membership
+Edit User
 ===================
 
-You can always edit Group Membership later as well via both Users and User Groups menu.
+You can edit users via the Edit link.
 
-.. image:: ../../_static/add-user-3.png
+.. image:: ../../_static/user-edit.png
 
 
 Delete User
 ===================
-To delete a user, click the Delete icon to the right of the Users name.
 
+You can delete users via the Delete link.
+
+.. image:: ../../_static/user-delete.png
 
 
 
