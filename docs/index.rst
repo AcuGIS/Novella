@@ -21,7 +21,6 @@ Novella
 
     components/users/index
     components/datasets/index
-    components/schedule/index
     components/harvest/index
     components/topics/index
     components/keywords/index
