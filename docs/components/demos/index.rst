@@ -20,7 +20,7 @@ Novella installs with 6 sample datasets.
 .. image:: ../../_static/demosets.png
 
 
-WMS Demo
+WMS Demos
 ================
 
 The WMS demo sample is from overijssel.nl
@@ -35,77 +35,40 @@ Begaanbaarheid hoofdwegen RIVUS
 
 .. image:: ../../_static/demo-wms2.png
   
-Sample Database
+GeoTIFF Demo
 ================
 
-The sample database, beedatabase, is taken from the QFieldCloud Simple Bee Project::
+Paris in 1550
 
-  beedatabase=# \dt
-               List of relations
-   Schema |      Name       | Type  | Owner
-  --------+-----------------+-------+--------
-   public | apiary          | table | admin1
-   public | fields          | table | admin1
-   public | spatial_ref_sys | table | jrv
-  (3 rows)
+.. image:: ../../_static/demo-paris-1550.png
 
 
-Sample Data Source
+ShapeFile Demo
 ================
 
-The included sample Data Source is a JNDI connection to the beedatabase:
+Chicago Neighborhooods
 
-.. image:: ../../_static/sample-data-source.png
+.. image:: ../../_static/demo-neighborhoods.png.png  
 
 
-
-Sample Reports
+QGIS Demos
 ================
 
-Three Sample Reports are created
+QGIS Citybees
 
-* Simple Bee Report	- this is a basic chart report
-
-.. image:: ../../_static/simple-bee-report.png
+.. image:: ../../_static/demo-bees.png
 
 
-* LOV Parameter - This is a basic report using a single LOV (List of Values) Parameter
-
-.. image:: ../../_static/lov-report-0.png
+Chicago QGIS Project
 
 
-* Query Parameter - This is a basic report using two Query Parameters
-
-.. image:: ../../_static/query-report-3.png
+.. image:: ../../_static/demo-chicago.png
 
 
-Sample Schedules
-================
-
-A sample Schedule is created for each report.
-
-Note: These Schedules, do not have email activated.  You can edit them to include email delivery to test email functionality.
-
-.. image:: ../../_static/sample-schedule.png
-
-
-
-Sample Parameters
-=====================
-
-Sample Parameters are include for the LOV Parameter and Query Parameter reports
-
-.. image:: ../../_static/sample-parameter.png
-
-Delete Sample Data
+Delete Demos
 ===================
 
-To delete the sample data:
-
-1. Delete Sample Schedules
-2. Delete Sample Reports
-3. Delete Sample Data Sources
-4. Drop beedatabase
+To delete demo data, simply delete the dataset as normal
 
 
 
