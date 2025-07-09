@@ -11,22 +11,29 @@ Sample Data
 **********************
 
 .. contents:: Table of Contents
+
 Overview
 ==================
 
-If you select the "Load Sample Data" box, it will create a sample database and reports.
+Novella installs with 6 sample datasets.
 
-**IMPORTANT** : If you load the Sample Data, you will need to restart Tomcat in order to pick up sample data.
-
-.. image:: ../../_static/tomcat-restart.png
+.. image:: ../../_static/demosets.png
 
 
-Dashboard
+WMS Demo
 ================
 
-The sample reports are available on the Dashboard
+The WMS demo sample is from overijssel.nl
 
-.. image:: ../../_static/sample-dashboard.png
+ https://services.geodataoverijssel.nl/geoserver/LIP/wms
+
+Bestaande open bodemenergiesystemen
+
+.. image:: ../../_static/demo-wms1.png
+
+Begaanbaarheid hoofdwegen RIVUS
+
+.. image:: ../../_static/demo-wms2.png
   
 Sample Database
 ================
