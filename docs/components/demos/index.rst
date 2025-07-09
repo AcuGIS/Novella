@@ -7,7 +7,7 @@
    :width: 1em
 
 **********************
-Sample Data
+Demo Data
 **********************
 
 .. contents:: Table of Contents
