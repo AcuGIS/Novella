@@ -48,7 +48,7 @@ ShapeFile Demo
 
 Chicago Neighborhooods
 
-.. image:: ../../_static/demo-neighborhoods.png.png  
+.. image:: ../../_static/demo-neighborhoods.png  
 
 
 QGIS Demos
