@@ -14,46 +14,27 @@ Viewer
 Overview
 ==================
 
-The Reports section on the left menu is where you add Reports to the end user Dashboard.
+The Viewer allows you to drag datasets onto the map canvas.
 
-Add New Report
+.. image:: ../../_static/viewer.png
+
+Add Datasets
 ================
 
-To add a new report, click the "Add New" button at top.
+Select a dataset to drag on to the maps canvas.
 
-.. image:: ../../_static/report-dashboard-0.png
+.. image:: ../../_static/viewer-bees.png
 
-Enter the following information:
+The map should zoom to the dataset
 
-* Report	- Name of the jrxml file
-* Data Souce - The JRI Data Source name
-* Format - Report Format (Defaults to HTML)
-* File Name	- jrxml name of the report
-* Name	- the name that will appear in the dashboard
-* Description	- the description that will appear in the dashboard
-* Access Groups - Group(s) that have access to this report
-* Grouped Report - Report is part of Grouped Report   
+.. image:: ../../_static/viewer-bees-2.png
 
+You can add as many layers as you wish to.
 
-With all fields populated, click the Add icon at right:
+.. image:: ../../_static/viewer-layers.png
 
-.. image:: ../../_static/report-dashboard-1.png
+Visible layers and current map view can be exported to PDF
 
+.. image:: ../../_static/viewer-pdf.png
 
-Report Thumbnail
-=====================
-
-You can set the thumbnail for a report by adding reportid.png to the assets/maps folder.
-
-Edit Report
-===================
-To edit a report entry, click the Edit icon, as shown below:
-
-.. image:: _static/Edit-Report.png
-
-Delete Report
-===================
-To delete a report entry, click the Delete icon, as shown below:
-
-.. image:: _static/Edit-Report.png
 
