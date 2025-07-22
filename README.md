@@ -1,6 +1,6 @@
-# Novella GIS Metadata Manager
+# Novella
 
-A PHP-PostgreSQL application for managing GIS metadata according to ISO 19115 + INSPIRE standards.
+Novella is a lightweight Spatial Data Catalogue and Portal
 
 ## Features
 
@@ -8,26 +8,27 @@ A PHP-PostgreSQL application for managing GIS metadata according to ISO 19115 + 
 - PostgreSQL database storage
 - XML export functionality
 - RESTful API endpoints
-- Modern web interface
+- Small footprint
 
 ## Requirements
 
 - Ubuntu 24.04 LTS
 - PHP 8.1 or higher
-- PostgreSQL 12 or higher
+- PostgreSQL 16 or higher
 - Apache 2.4
 - Composer
 
 ## Installation on Ubuntu 24.04
 
 1. Install PostgreSQL and Novella with demo:
+
 ```bash
 cd novella
 ./installer/postgres.sh
 ./installer/novella_ubuntu24.sh
 ```
 
-2. To skip demo use --no-demo option:
+2. To skip demo or qgis support use --no-demo and/or --no-qgis option:
 ```bash
 ./installer/novella_ubuntu24.sh --no-demo --no-qgis
 ```
@@ -46,19 +47,8 @@ The application uses the following main tables:
 
 ## Security Considerations
 
-1. Make sure to:
-   - Keep PHP and all packages updated
-   - Use HTTPS in production
-   - Set proper file permissions
-   - Configure firewall rules
-   - Use strong database passwords
-   - Keep your `.env` file secure
-
-2. For production:
+For production:
    - Set `APP_ENV=production` and `APP_DEBUG=false` in `.env`
-   - Configure SSL/TLS certificates
-   - Set up proper backup procedures
-   - Monitor server logs
 
 ## Troubleshooting
 
