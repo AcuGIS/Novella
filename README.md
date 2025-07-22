@@ -2,6 +2,9 @@
 
 Novella is a lightweight Spatial Data Catalogue and Portal
 
+
+![Novella](docs/_static/novella-main.png)
+
 ## Features
 
 - Metadata entry form following ISO 19115 + INSPIRE standards
