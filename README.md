@@ -39,6 +39,19 @@ Novella is a lightweight Spatial Data Catalog and Portal
 ./installer/novella_ubuntu24.sh --no-demo --no-qgis
 ```
 
+Optionally, provision and SSL certificate using:
+
+```bash
+ apt-get -y install python3-certbot-apache
+ certbot --apache --agree-tos --email hostmaster@${HNAME} --no-eff-email -d ${HNAME}
+```
+
+Default credentials
+
+   - Username: admin
+   - Password: Novella
+
+
 ## Database Structure
 
 The application uses the following main tables:
