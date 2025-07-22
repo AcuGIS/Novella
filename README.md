@@ -2,7 +2,7 @@
 
 [![Documentation Status](https://readthedocs.org/projects/novella/badge/?version=latest)](https://novella.docs.acugis.com/en/latest/?badge=latest)
 
-Novella is a lightweight Spatial Data Catalogue and Portal
+Novella is a lightweight Spatial Data Catalog and Portal
 
 
 ![Novella](docs/_static/novella-main.png)
