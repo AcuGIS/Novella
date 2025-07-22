@@ -29,7 +29,7 @@ Novella is a lightweight Spatial Data Catalog and Portal
 
 ```bash
    git clone https://github.com/AcuGIS/Novella.git
-   cd novella
+   cd Novella
    ./installer/postgres.sh
    ./installer/novella_ubuntu24.sh
 ```
