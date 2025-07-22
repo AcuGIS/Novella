@@ -1,0 +1,710 @@
+{% extends "base.twig" %}
+
+{% block title %}{{ dataset.title }} - Dataset Details{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold">{{ dataset.title }}</h1>
+            <div class="space-x-4">
+                {% if auth.getCurrentUser() and auth.getCurrentUser().hasPermission('edit_dataset') %}
+                    <button onclick="togglePublic()" 
+                            class="{% if dataset.is_public %}bg-green-600 hover:bg-green-700{% else %}bg-yellow-600 hover:bg-yellow-700{% endif %} text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 {% if dataset.is_public %}focus:ring-green-500{% else %}focus:ring-yellow-500{% endif %}">
+                        {% if dataset.is_public %}
+                            <span class="flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Public
+                            </span>
+                        {% else %}
+                            <span class="flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                                Private
+                            </span>
+                        {% endif %}
+                    </button>
+                    <a href="/form/{{ dataset.id }}" 
+                       class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        Edit Metadata
+                    </a>
+                    <button onclick="confirmDelete()" 
+                            class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                        Delete Dataset
+                    </button>
+                {% endif %}
+                <span style="display: inline-block;">
+                <a class="link" href="/metadata/{{ dataset.id }}/xml" 
+                   target="_blank">
+                    <span class="flex items-center">
+                        <i class="fa-solid fa-file-code mr-2"></i>
+                        <span>View as XML</span>
+                    </span>
+                </a></span>
+
+		<span style="display: inline-block;">
+                <a href="/metadata/{{ dataset.id }}/pdf" 
+                   target="_blank">
+                    <span class="flex items-center">
+                        <i class="fa-solid fa-file-pdf mr-2"></i>
+                        <span>Save as PDF</span>
+                    </span>
+                </a>
+		</span>
+		
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div class="mt-3 text-center">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Confirm Deletion</h3>
+                    <div class="mt-2 px-7 py-3">
+                        <p class="text-sm text-gray-500">
+                            Are you sure you want to delete this dataset? This action cannot be undone.
+                        </p>
+                    </div>
+                    <div class="flex justify-center space-x-4 mt-4">
+                        <button onclick="closeDeleteModal()" 
+                                class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                            Cancel
+                        </button>
+                        <button onclick="deleteDataset()" 
+                                class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden">
+            <!-- Header Section -->
+            <div class="bg-gray-50 border-b px-8 py-6">
+                <h1 class="text-3xl font-bold text-gray-900">{{ dataset.title }}</h1>
+            </div>
+
+            <div class="p-8">
+                <!-- Basic Information -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Basic Information</h2>
+                    <div class="bg-white border rounded-lg overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Title</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.title }}</td>
+                                </tr>
+                                {% if dataset.resource_identifier %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Resource Identifier</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.resource_identifier }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.abstract %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Abstract</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.abstract }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.purpose %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Purpose</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.purpose }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.keywords %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Keywords</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.keywords|join(', ') }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.topic_name %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Topic</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.topic_name }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.inspire_theme_name %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">INSPIRE Theme</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.inspire_theme_name }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.metadata_language %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Language</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.metadata_language }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.character_set %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Character Set</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.character_set }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.metadata_date %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Metadata Date</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.metadata_date }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.maintenance_frequency %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Maintenance Frequency</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">
+                                            {% set frequency_display = {
+                                                'continual': 'Continual',
+                                                'daily': 'Daily',
+                                                'weekly': 'Weekly',
+                                                'fortnightly': 'Fortnightly',
+                                                'monthly': 'Monthly',
+                                                'quarterly': 'Quarterly',
+                                                'biannually': 'Biannually',
+                                                'annually': 'Annually',
+                                                'asNeeded': 'As Needed',
+                                                'irregular': 'Irregular',
+                                                'notPlanned': 'Not Planned',
+                                                'unknown': 'Unknown'
+                                            } %}
+                                            {{ frequency_display[dataset.maintenance_frequency] ?? dataset.maintenance_frequency }}
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Citation -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Citation</h2>
+                    <div class="bg-white border rounded-lg overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <tbody class="divide-y divide-gray-200">
+                                {% if dataset.citation_date or dataset.responsible_org or dataset.responsible_person or dataset.role %}
+                                    {% if dataset.citation_date %}
+                                        <tr>
+                                            <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Date</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.citation_date }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if dataset.responsible_org %}
+                                        <tr>
+                                            <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Organization</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.responsible_org }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if dataset.responsible_person %}
+                                        <tr>
+                                            <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Person</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.responsible_person }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if dataset.role %}
+                                        <tr>
+                                            <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Role</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">
+                                                {% set role_display = {
+                                                    'pointOfContact': 'Point of Contact',
+                                                    'originator': 'Originator',
+                                                    'publisher': 'Publisher',
+                                                    'author': 'Author',
+                                                    'custodian': 'Custodian'
+                                                } %}
+                                                {{ role_display[dataset.role] ?? dataset.role }}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% else %}
+                                    <tr>
+                                        <td class="px-6 py-4 text-sm text-gray-500" colspan="2">No citation information available</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Spatial Information -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Spatial Information</h2>
+                    <div class="bg-white border rounded-lg overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Spatial Extent</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">
+                                        {{ dataset.west_longitude }}°W to {{ dataset.east_longitude }}°E, 
+                                        {{ dataset.south_latitude }}°S to {{ dataset.north_latitude }}°N
+                                    </td>
+                                </tr>
+                                {% if dataset.coordinate_system %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Coordinate Reference System</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.coordinate_system }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.spatial_resolution %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Spatial Resolution</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.spatial_resolution }}</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Temporal Information -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Temporal Information</h2>
+                    <div class="bg-white border rounded-lg overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Start Date</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.start_date ?: 'Not specified' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">End Date</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.end_date ?: 'Not specified' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Responsible Parties -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Responsible Parties</h2>
+                    <div class="bg-white border rounded-lg overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <tbody class="divide-y divide-gray-200">
+                                {% if dataset.contact_org or dataset.metadata_point_of_contact or dataset.metadata_poc_organization or dataset.metadata_poc_email or dataset.metadata_poc_role %}
+                                    {% if dataset.contact_org %}
+                                        <tr>
+                                            <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Contact Organization</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.contact_org }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if dataset.metadata_point_of_contact %}
+                                        <tr>
+                                            <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Metadata Point of Contact</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.metadata_point_of_contact }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if dataset.metadata_poc_organization %}
+                                        <tr>
+                                            <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Metadata Organization</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.metadata_poc_organization }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if dataset.metadata_poc_email %}
+                                        <tr>
+                                            <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Metadata Email</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">
+                                                <a href="mailto:{{ dataset.metadata_poc_email }}" class="text-blue-600 hover:underline">{{ dataset.metadata_poc_email }}</a>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if dataset.metadata_poc_role %}
+                                        <tr>
+                                            <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Metadata Role</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">
+                                                {% set role_display = {
+                                                    'pointOfContact': 'Point of Contact',
+                                                    'originator': 'Originator',
+                                                    'publisher': 'Publisher',
+                                                    'author': 'Author',
+                                                    'custodian': 'Custodian'
+                                                } %}
+                                                {{ role_display[dataset.metadata_poc_role] ?? dataset.metadata_poc_role }}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% else %}
+                                    <tr>
+                                        <td class="px-6 py-4 text-sm text-gray-500" colspan="2">No responsible parties information available</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Data Quality -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Data Quality</h2>
+                    <div class="bg-white border rounded-lg overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <tbody class="divide-y divide-gray-200">
+                                {% if dataset.lineage %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Lineage</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.lineage }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.resource_type %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Scope</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.resource_type }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.conformity_result %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Conformity Result</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">
+                                            {% set conformity_display = {
+                                                'conformant': 'Conformant',
+                                                'non-conformant': 'Non-conformant',
+                                                'unknown': 'Unknown'
+                                            } %}
+                                            {{ conformity_display[dataset.conformity_result] ?? dataset.conformity_result }}
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Constraints -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Access and Use Constraints</h2>
+                    <div class="bg-white border rounded-lg overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <tbody class="divide-y divide-gray-200">
+                                {% if dataset.use_constraints %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Use Constraints</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.use_constraints }}</td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Use Constraints</td>
+                                        <td class="px-6 py-4 text-sm text-gray-500">Not specified</td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.access_constraints %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Access Constraints</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.access_constraints }}</td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Access Constraints</td>
+                                        <td class="px-6 py-4 text-sm text-gray-500">Not specified</td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.use_limitation %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Use Limitation</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.use_limitation }}</td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Use Limitation</td>
+                                        <td class="px-6 py-4 text-sm text-gray-500">Not specified</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- INSPIRE Metadata -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">INSPIRE Metadata</h2>
+                    <div class="bg-white border rounded-lg overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <tbody class="divide-y divide-gray-200">
+
+					<tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Metadata Standard Name</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">ISO 19115 / INSPIRE</td>
+                                    </tr>
+
+                                {% if dataset.point_of_contact_org %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">INSPIRE Point of Contact Organization</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.point_of_contact_org }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.conformity_result %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Conformity Result</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">
+                                            {% set conformity_display = {
+                                                'conformant': 'Conformant',
+                                                'non-conformant': 'Non-conformant',
+                                                'unknown': 'Unknown'
+                                            } %}
+                                            {{ conformity_display[dataset.conformity_result] ?? dataset.conformity_result }}
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.spatial_data_service_url %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Spatial Data Service URL</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">
+                                            <a href="{{ dataset.spatial_data_service_url }}" target="_blank" class="text-blue-600 hover:underline">{{ dataset.spatial_data_service_url }}</a>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Distribution -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Distribution</h2>
+                    <div class="bg-white border rounded-lg overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <tbody class="divide-y divide-gray-200">
+                                {% if dataset.service_url %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Service URL</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">
+                                            <a href="{{ dataset.service_url }}" target="_blank" class="text-blue-600 hover:underline">{{ dataset.service_url }}</a>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.distribution_url %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Distribution URL</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">
+                                            <a href="{{ dataset.distribution_url }}" target="_blank" class="text-blue-600 hover:underline">{{ dataset.distribution_url }}</a>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.data_format %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Data Format(s)</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">
+                                            {% if dataset.data_format is iterable %}
+                                                {{ dataset.data_format|join(', ') }}
+                                            {% else %}
+                                                {{ dataset.data_format }}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.gis_files is iterable %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">File(s)</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">
+                                            {% for f in dataset.gis_files %}
+                                                <a href="/datasets/{{ dataset.id }}/{{ f.id }}"> {{ f.file_name }}</a>
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                {% if dataset.coupled_resource %}
+                                    <tr>
+                                        <td class="px-6 py-4 bg-gray-50 text-sm font-medium text-gray-500 w-1/4">Coupled Resource</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">{{ dataset.coupled_resource }}</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Map Preview -->
+                {% if (dataset.wms_url and dataset.wms_layer) or (dataset.west_longitude and dataset.east_longitude and dataset.south_latitude and dataset.north_latitude) %}
+                    <div class="mb-8">
+                        <h2 class="text-xl font-semibold mb-4 text-gray-800">Spatial Preview</h2>
+                        <div id="map" class="w-full h-96 rounded-lg border"></div>
+                    </div>
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.4.0/ol.css">
+                    <script src="https://cdn.jsdelivr.net/npm/ol@v7.4.0/dist/ol.js"></script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            // Initialize map with OSM base layer
+                            var map = new ol.Map({
+                                target: 'map',
+                                layers: [
+                                    new ol.layer.Tile({
+                                        source: new ol.source.OSM()
+                                    })
+                                ],
+                                view: new ol.View({
+                                    center: ol.proj.fromLonLat([
+                                        {% if dataset.west_longitude and dataset.east_longitude %}
+                                            {{ ((dataset.west_longitude + dataset.east_longitude) / 2)|default(0) }},
+                                        {% else %}0,{% endif %}
+                                        {% if dataset.south_latitude and dataset.north_latitude %}
+                                            {{ ((dataset.south_latitude + dataset.north_latitude) / 2)|default(0) }}
+                                        {% else %}0{% endif %}
+                                    ]),
+                                    zoom: 5
+                                })
+                            });
+
+                            {% if dataset.wms_url and dataset.wms_layer %}
+                            // Add WMS layer if available
+                            map.addLayer(new ol.layer.Tile({
+                                source: new ol.source.TileWMS({
+                                    url: '{{ dataset.wms_url }}',
+                                    params: {
+                                        'LAYERS': '{{ dataset.wms_layer }}',
+                                        'TILED': true
+                                    },
+                                    serverType: 'geoserver'
+                                })
+                            }));
+
+                            // If we have coordinates, fit the map to the extent
+                            {% if dataset.west_longitude and dataset.east_longitude and dataset.south_latitude and dataset.north_latitude %}
+                            // Debug: log the raw coordinates
+                            console.log('Raw coordinates:', {{ dataset.west_longitude }}, {{ dataset.south_latitude }}, {{ dataset.east_longitude }}, {{ dataset.north_latitude }});
+                            const allZero =
+                                {{ dataset.west_longitude }} == 0 &&
+                                {{ dataset.east_longitude }} == 0 &&
+                                {{ dataset.south_latitude }} == 0 &&
+                                {{ dataset.north_latitude }} == 0;
+                            const extent = ol.proj.transformExtent(
+                                [{{ dataset.west_longitude }}, {{ dataset.south_latitude }}, {{ dataset.east_longitude }}, {{ dataset.north_latitude }}],
+                                'EPSG:4326',
+                                'EPSG:3857'
+                            );
+                            const extentWidth = extent[2] - extent[0];
+                            const extentHeight = extent[3] - extent[1];
+                            const threshold = 1e-6;
+                            if (allZero || (Math.abs(extentWidth) < threshold && Math.abs(extentHeight) < threshold)) {
+                                // For point or all-zero extents, center at [0,0] and set max zoomed out
+                                map.getView().setCenter(ol.proj.fromLonLat([0, 0]));
+                                map.getView().setZoom(0);
+                            } else {
+                                // For normal extents, fit the map to the extent
+                                map.getView().fit(extent, { padding: [50, 50, 50, 50] });
+                            }
+                            {% endif %}
+
+                            {% else %}
+                            // Only show bounding box if no WMS layer is available
+                            {% if dataset.west_longitude and dataset.east_longitude and dataset.south_latitude and dataset.north_latitude %}
+                            const extent = ol.proj.transformExtent(
+                                [{{ dataset.west_longitude }}, {{ dataset.south_latitude }}, {{ dataset.east_longitude }}, {{ dataset.north_latitude }}],
+                                'EPSG:4326',
+                                'EPSG:3857'
+                            );
+
+                            // Create a vector layer for the bounding box
+                            const vectorSource = new ol.source.Vector();
+                            const vectorLayer = new ol.layer.Vector({
+                                source: vectorSource,
+                                style: new ol.style.Style({
+                                    stroke: new ol.style.Stroke({
+                                        color: 'rgba(0, 0, 255, 1.0)',
+                                        width: 2
+                                    }),
+                                    fill: new ol.style.Fill({
+                                        color: 'rgba(0, 0, 255, 0.1)'
+                                    })
+                                })
+                            });
+                            map.addLayer(vectorLayer);
+
+                            // Create a polygon from the extent
+                            const polygon = new ol.Feature({
+                                geometry: new ol.geom.Polygon.fromExtent(extent)
+                            });
+                            vectorSource.addFeature(polygon);
+
+                            // Check if extent has zero width or height (point extent)
+                            const extentWidth = extent[2] - extent[0];
+                            const extentHeight = extent[3] - extent[1];
+                            
+                            if (Math.abs(extentWidth) < 1e-6 && Math.abs(extentHeight) < 1e-6) {
+                                // For point extents, center at [0,0] and set a reasonable zoom level
+                                map.getView().setCenter(ol.proj.fromLonLat([0, 0]));
+                                map.getView().setZoom(10);
+                            } else {
+                                // For normal extents, fit the map to the extent
+                                map.getView().fit(extent, { padding: [50, 50, 50, 50] });
+                            }
+                            {% endif %}
+                            {% endif %}
+                        });
+                    </script>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function confirmDelete() {
+        document.getElementById('deleteModal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.add('hidden');
+    }
+
+    async function deleteDataset() {
+        try {
+            const response = await fetch('/datasets/{{ dataset.id }}/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Show success message and redirect to datasets list
+                alert(result.message);
+                window.location.href = '/';
+            } else {
+                throw new Error(result.message || 'Error deleting dataset');
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    }
+
+    async function togglePublic() {
+        try {
+            const response = await fetch('/datasets/{{ dataset.id }}/toggle-public', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Show success message and reload the page to update the UI
+                alert(result.message);
+                window.location.reload();
+            } else {
+                throw new Error(result.message || 'Error toggling dataset public status');
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    }
+</script>
+{% endblock %}

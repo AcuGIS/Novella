@@ -1,0 +1,27 @@
+{
+    "wms_url": "https:\/\/services.geodataoverijssel.nl\/geoserver\/LIP\/wms",
+    "wms_layer": "LIP_Breuken_in_de_formatie_van_Brussel",
+    "title": "Breuken in de formatie van Brussel",
+    "abstract": "Ligging van de breuken binnen de formatie van Brussels Zand. De Formatie van Brussel, Zanden van Brussel, of Brussel Formatie (sic, afkorting: Br; genoemd naar de stad Brussel) is een geologische formatie in de ondergrond van het centrale deel van Belgi\u00eb. De formatie bestaat uit ondiep-mariene zanden en kalkzanden, die in de zee die het noorden en midden van Belgi\u00eb bedekte tijdens het Eoceen afgezet zijn, in een diep landwaarts reikend zijbekken van de Noordzee.",
+    "keywords": "energie, formatie, brussel, breuken",
+    "lineage": "Data harvested from WMS service: https:\/\/services.geodataoverijssel.nl\/geoserver\/LIP\/wms",
+    "resource_type": "service",
+    "metadata_date": "2025-07-07",
+    "metadata_language": "eng",
+    "contact_org": null,
+    "service_url": "https:\/\/services.geodataoverijssel.nl\/geoserver\/LIP\/wms",
+    "data_format": [
+        "WMS"
+    ],
+    "distribution_url": "https:\/\/services.geodataoverijssel.nl\/geoserver\/LIP\/wms",
+    "citation_date": "2025-07-07",
+    "responsible_org": "Novella GIS",
+    "responsible_person": "System",
+    "role": "Data Provider",
+    "west_longitude": 5.823927,
+    "east_longitude": 6.996668,
+    "south_latitude": 52.150874,
+    "north_latitude": 52.697062,
+    "harvested_at": "2025-07-07T06:55:41+00:00",
+    "dataset_id": null
+}

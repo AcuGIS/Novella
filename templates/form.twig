@@ -1,0 +1,1082 @@
+{% extends "base.twig" %}
+
+{% block title %}{% if is_edit %}Edit{% else %}New{% endif %} ISO 19115 + INSPIRE Metadata{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.4.0/ol.css">
+<style>
+    .required::after {
+        content: " *";
+        color: red;
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        background-color: white;
+    }
+    
+    #map {
+        width: 100%;
+        height: 400px;
+        margin-top: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <h1 class="text-3xl font-bold mb-8">{% if is_edit %}Edit{% else %}New{% endif %} ISO 19115 + INSPIRE Metadata</h1>
+    
+    <form id="metadataForm" action="{% if is_edit %}/metadata/{{ dataset.id }}/update{% else %}/metadata{% endif %}" 
+          method="{% if is_edit %}PUT{% else %}POST{% endif %}" 
+          enctype="multipart/form-data" 
+          class="space-y-8">
+        
+        {% if is_edit %}
+        <input type="hidden" name="_method" value="PUT">
+        {% endif %}
+        
+        <input type="hidden" name="is_qgis_project" id="is_qgis_project" value="0"/>
+
+        <!-- Identification Info Section -->
+        <div class="form-section">
+            <h2 class="text-xl font-semibold mb-4">Identification Info</h2>
+            <div class="mb-4">
+                <label for="title" class="block text-sm font-medium text-gray-700 mb-1 required">Title</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                       id="title" name="title" required
+                       value="{{ dataset.title|default('') }}">
+            </div>
+            <div class="mb-4">
+                <label for="abstract" class="block text-sm font-medium text-gray-700 mb-1 required">Abstract</label>
+                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                          id="abstract" name="abstract" rows="3" required>{{ dataset.abstract|default('') }}</textarea>
+            </div>
+            <div class="mb-4">
+                <label for="purpose" class="block text-sm font-medium text-gray-700 mb-1">Purpose</label>
+                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                          id="purpose" name="purpose" rows="2">{{ dataset.purpose|default('') }}</textarea>
+            </div>
+            <div class="mb-4">
+                <label for="keywords" class="block text-sm font-medium text-gray-700 mb-1">Keywords (comma separated)</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                       id="keywords" name="keywords"
+                       value="{{ dataset.keywords ? dataset.keywords|join(', ') : '' }}">
+            </div>
+            <div class="mb-4">
+                <label for="topic" class="block text-sm font-medium text-gray-700 mb-1">Topic</label>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        id="topic" name="topic">
+                    <option value="">Select Topic</option>
+                    {% for topic in topics %}
+                        <option value="{{ topic.id }}" {% if dataset.topic_id == topic.id %}selected{% endif %}>
+                            {{ topic.topic }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="inspire_theme" class="block text-sm font-medium text-gray-700 mb-1">INSPIRE Theme</label>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        id="inspire_theme" name="inspire_theme">
+                    <option value="">Select INSPIRE Theme</option>
+                    {% for keyword in keywords %}
+                        <option value="{{ keyword.id }}" {% if dataset.inspire_theme_id == keyword.id %}selected{% endif %}>
+                            {{ keyword.keyword }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="metadata_language" class="block text-sm font-medium text-gray-700 mb-1">Metadata Language</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                       id="metadata_language" name="metadata_language" placeholder="e.g., en, fr, de"
+                       value="{{ dataset.metadata_language|default('') }}">
+            </div>
+        </div>
+
+        <!-- Citation Section -->
+        <div class="form-section">
+            <h2 class="text-xl font-semibold mb-4">Citation</h2>
+            <div class="mb-4">
+                <label for="citation_date" class="block text-sm font-medium text-gray-700 mb-1 required">Citation Date</label>
+                <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                       id="citation_date" name="citation_date" required
+                       value="{{ dataset.citation_date|date('Y-m-d') }}">
+            </div>
+            <div class="mb-4">
+                <label for="responsible_org" class="block text-sm font-medium text-gray-700 mb-1 required">Responsible Organization</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                       id="responsible_org" name="responsible_org" required
+                       value="{{ dataset.responsible_org|default('') }}">
+            </div>
+            <div class="mb-4">
+                <label for="responsible_person" class="block text-sm font-medium text-gray-700 mb-1">Responsible Person</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                       id="responsible_person" name="responsible_person"
+                       value="{{ dataset.responsible_person|default('') }}">
+            </div>
+            <div class="mb-4">
+                <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        id="role" name="role">
+                    <option value="">Select Role</option>
+                    <option value="pointOfContact" {% if dataset.role == 'pointOfContact' %}selected{% endif %}>Point of Contact</option>
+                    <option value="originator" {% if dataset.role == 'originator' %}selected{% endif %}>Originator</option>
+                    <option value="publisher" {% if dataset.role == 'publisher' %}selected{% endif %}>Publisher</option>
+                    <option value="author" {% if dataset.role == 'author' %}selected{% endif %}>Author</option>
+                    <option value="custodian" {% if dataset.role == 'custodian' %}selected{% endif %}>Custodian</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- WMS Layer Selector Section -->
+        <div class="form-section">
+            <h2 class="text-xl font-semibold mb-4">WMS Layer Selection</h2>
+            <div class="mb-4">
+                <label for="wms_url" class="block text-sm font-medium text-gray-700 mb-1">WMS Service URL</label>
+                <div class="flex space-x-2">
+                    <input type="url" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                           id="wms_url" name="wms_url" placeholder="https://example.com/geoserver/wms"
+                           value="{{ dataset.wms_url }}">
+                    <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
+                            id="fetchLayersBtn">Fetch Layers</button>
+                </div>
+            </div>
+            <div class="mb-4 hidden" id="layerSelectContainer">
+                <label for="wms_layer" class="block text-sm font-medium text-gray-700 mb-1">Select Layer</label>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        id="wms_layer" name="wms_layer">
+                    <option value="">Select a layer...</option>
+                </select>
+            </div>
+            <div id="map"></div>
+        </div>
+
+        <!-- GIS File Upload Section -->
+        <div class="form-section">
+            <h2 class="text-xl font-semibold mb-4">GIS File Upload</h2>
+            <div class="mb-4">
+                <label for="gis_files" class="block text-sm font-medium text-gray-700 mb-1">Upload GIS Files</label>
+                <input type="file" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                       id="gis_files" name="gis_files[]" multiple 
+                       accept=".zip,.shp,.gpkg,.tif,.tiff,.geotiff,.img,.ecw,.jp2,.sid,.asc,.grd,.nc">
+                <p class="mt-1 text-sm text-gray-500">
+                    Supported formats: QGIS (.zip), Shapefile (.zip), GeoPackage (.gpkg), GeoTIFF (.tif, .tiff), 
+                    ECW (.ecw), JPEG2000 (.jp2), MrSID (.sid), ASCII Grid (.asc), NetCDF (.nc)
+                </p>
+            </div>
+            <div class="mb-4">
+                <label for="thumbnail" class="block text-sm font-medium text-gray-700 mb-1">Dataset Thumbnail</label>
+                <input type="file" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                       id="thumbnail" name="thumbnail" accept="image/jpeg,image/png,image/gif">
+                <p class="mt-1 text-sm text-gray-500">
+                    Upload a thumbnail image for the dataset (JPEG, PNG, or GIF format)
+                </p>
+            </div>
+            <div id="uploadedFiles" class="mt-4 space-y-4">
+                <!-- Uploaded files will be listed here -->
+            </div>
+        </div>
+
+        <!-- Geographic Extent Section -->
+        <div class="form-section">
+            <h2 class="text-xl font-semibold mb-4">Geographic Extent</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="mb-4">
+                    <label for="west_longitude" class="block text-sm font-medium text-gray-700 mb-1 required">West Longitude</label>
+                    <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                           id="west_longitude" name="west_longitude" step="0.000001" required
+                           value="{{ dataset.west_longitude|default('') }}">
+                </div>
+                <div class="mb-4">
+                    <label for="east_longitude" class="block text-sm font-medium text-gray-700 mb-1 required">East Longitude</label>
+                    <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                           id="east_longitude" name="east_longitude" step="0.000001" required
+                           value="{{ dataset.east_longitude|default('') }}">
+                </div>
+                <div class="mb-4">
+                    <label for="south_latitude" class="block text-sm font-medium text-gray-700 mb-1 required">South Latitude</label>
+                    <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                           id="south_latitude" name="south_latitude" step="0.000001" required
+                           value="{{ dataset.south_latitude|default('') }}">
+                </div>
+                <div class="mb-4">
+                    <label for="north_latitude" class="block text-sm font-medium text-gray-700 mb-1 required">North Latitude</label>
+                    <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                           id="north_latitude" name="north_latitude" step="0.000001" required
+                           value="{{ dataset.north_latitude|default('') }}">
+                </div>
+            </div>
+        </div>
+
+        <!-- Temporal Extent Section -->
+        <div class="form-section">
+            <h2 class="text-xl font-semibold mb-4">Temporal Extent</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="mb-4">
+                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                    <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                           id="start_date" name="start_date"
+                           value="{{ dataset.start_date|date('Y-m-d') }}">
+                </div>
+                <div class="mb-4">
+                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                    <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                           id="end_date" name="end_date"
+                           value="{{ dataset.end_date|date('Y-m-d') }}">
+                </div>
+            </div>
+        </div>
+
+        <!-- Spatial Representation Section -->
+        <div class="form-section">
+            <h2 class="text-xl font-semibold mb-4">Spatial Representation</h2>
+            <div class="mb-4">
+                <label for="coordinate_system" class="block text-sm font-medium text-gray-700 mb-1">Coordinate System (EPSG Code)</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                       id="coordinate_system" name="coordinate_system" placeholder="e.g., EPSG:4326"
+                       value="{{ dataset.coordinate_system|default('') }}">
+            </div>
+            <div class="mb-4">
+                <label for="spatial_resolution" class="block text-sm font-medium text-gray-700 mb-1">Spatial Resolution</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                       id="spatial_resolution" name="spatial_resolution" placeholder="e.g., 30m, 1:10000, 0.5 degrees"
+                       value="{{ dataset.spatial_resolution|default('') }}">
+                <p class="mt-1 text-sm text-gray-500">Enter the scale or equivalent resolution of the data (e.g., 30m, 1:10000, 0.5 degrees)</p>
+            </div>
+        </div>
+
+        <!-- Constraints Section -->
+        <div class="form-section">
+            <h2 class="text-xl font-semibold mb-4">Constraints</h2>
+            <div class="mb-4">
+                <label for="access_constraints" class="block text-sm font-medium text-gray-700 mb-1">Access Constraints</label>
+                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                          id="access_constraints" name="access_constraints" rows="2" 
+                          placeholder="Restrictions and legal prerequisites for accessing the dataset">{{ dataset.access_constraints|default('') }}</textarea>
+            </div>
+            <div class="mb-4">
+                <label for="use_constraints" class="block text-sm font-medium text-gray-700 mb-1">Use Constraints</label>
+                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                          id="use_constraints" name="use_constraints" rows="2" 
+                          placeholder="Restrictions and legal prerequisites for using the dataset">{{ dataset.use_constraints|default('') }}</textarea>
+            </div>
+            <div class="mb-4">
+                <label for="use_limitation" class="block text-sm font-medium text-gray-700 mb-1">Use Limitation</label>
+                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                          id="use_limitation" name="use_limitation" rows="2" 
+                          placeholder="General restrictions and legal prerequisites for using the dataset">{{ dataset.use_limitation|default('') }}</textarea>
+            </div>
+        </div>
+
+        <!-- Data Quality Section -->
+        <div class="form-section">
+            <h2 class="text-xl font-semibold mb-4">Data Quality</h2>
+            <div class="mb-4">
+                <label for="lineage" class="block text-sm font-medium text-gray-700 mb-1">Lineage</label>
+                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                          id="lineage" name="lineage" rows="2" 
+                          placeholder="Statement about data quality and origin">{{ dataset.lineage|default('') }}</textarea>
+            </div>
+            <div class="mb-4">
+                <label for="resource_type" class="block text-sm font-medium text-gray-700 mb-1">Scope</label>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        id="resource_type" name="resource_type">
+                    <option value="">Select Scope</option>
+                    <option value="dataset" {% if dataset.resource_type == 'dataset' %}selected{% endif %}>Dataset</option>
+                    <option value="series" {% if dataset.resource_type == 'series' %}selected{% endif %}>Series</option>
+                    <option value="service" {% if dataset.resource_type == 'service' %}selected{% endif %}>Service</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- INSPIRE Metadata Section -->
+        <div class="form-section">
+            <h2 class="text-xl font-semibold mb-4">INSPIRE Metadata</h2>
+            <div class="mb-4">
+                <label for="point_of_contact_org" class="block text-sm font-medium text-gray-700 mb-1">INSPIRE Point of Contact Organization</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                       id="point_of_contact_org" name="point_of_contact_org"
+                       value="{{ dataset.point_of_contact_org|default('') }}">
+            </div>
+            <div class="mb-4">
+                <label for="conformity_result" class="block text-sm font-medium text-gray-700 mb-1">Conformity Result</label>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                        id="conformity_result" name="conformity_result">
+                    <option value="">Select Result</option>
+                    <option value="conformant" {% if dataset.conformity_result == 'conformant' %}selected{% endif %}>Conformant</option>
+                    <option value="non-conformant" {% if dataset.conformity_result == 'non-conformant' %}selected{% endif %}>Non-conformant</option>
+                    <option value="unknown" {% if dataset.conformity_result == 'unknown' %}selected{% endif %}>Unknown</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="spatial_data_service_url" class="block text-sm font-medium text-gray-700 mb-1">Spatial Data Service URL</label>
+                <input type="url" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                       id="spatial_data_service_url" name="spatial_data_service_url"
+                       value="{{ dataset.spatial_data_service_url|default('') }}">
+            </div>
+        </div>
+
+        <!-- Additional Metadata Section -->
+        <div class="form-section">
+            <h2 class="text-xl font-semibold mb-4">Additional Metadata</h2>
+            <div class="mb-4">
+                <h3 class="text-lg font-medium text-gray-900 mb-3">Metadata Point of Contact</h3>
+                <div class="mb-4">
+                    <label for="metadata_poc_organization" class="block text-sm font-medium text-gray-700 mb-1">Organization</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                           id="metadata_poc_organization" name="metadata_poc_organization" 
+                           placeholder="Organization of the metadata point of contact"
+                           value="{{ dataset.metadata_poc_organization|default('') }}">
+                </div>
+                <div class="mb-4">
+                    <label for="metadata_poc_email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                           id="metadata_poc_email" name="metadata_poc_email" 
+                           placeholder="Email address of the metadata point of contact"
+                           value="{{ dataset.metadata_poc_email|default('') }}">
+                </div>
+                <div class="mb-4">
+                    <label for="metadata_poc_role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                           id="metadata_poc_role" name="metadata_poc_role" 
+                           placeholder="Role of the metadata point of contact"
+                           value="{{ dataset.metadata_poc_role|default('') }}">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h3 class="text-lg font-medium text-gray-900 mb-3">Resource Information</h3>
+                <div class="mb-4">
+                    <label for="resource_type" class="block text-sm font-medium text-gray-700 mb-1">Resource Type</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                            id="resource_type" name="resource_type">
+                        <option value="">Select Type</option>
+                        <option value="dataset" {% if dataset.resource_type == 'dataset' %}selected{% endif %}>Dataset</option>
+                        <option value="service" {% if dataset.resource_type == 'service' %}selected{% endif %}>Service</option>
+                        <option value="series" {% if dataset.resource_type == 'series' %}selected{% endif %}>Series</option>
+                        <option value="other" {% if dataset.resource_type == 'other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="resource_identifier" class="block text-sm font-medium text-gray-700 mb-1">Resource Identifier</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                           id="resource_identifier" name="resource_identifier" 
+                           placeholder="Unique identifier for the resource"
+                           value="{{ dataset.resource_identifier|default('') }}">
+                </div>
+                <div class="mb-4">
+                    <label for="maintenance_frequency" class="block text-sm font-medium text-gray-700 mb-1">Maintenance Frequency</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                            id="maintenance_frequency" name="maintenance_frequency">
+                        <option value="">Select Frequency</option>
+                        <option value="continual" {% if dataset.maintenance_frequency == 'continual' %}selected{% endif %}>Continual</option>
+                        <option value="daily" {% if dataset.maintenance_frequency == 'daily' %}selected{% endif %}>Daily</option>
+                        <option value="weekly" {% if dataset.maintenance_frequency == 'weekly' %}selected{% endif %}>Weekly</option>
+                        <option value="fortnightly" {% if dataset.maintenance_frequency == 'fortnightly' %}selected{% endif %}>Fortnightly</option>
+                        <option value="monthly" {% if dataset.maintenance_frequency == 'monthly' %}selected{% endif %}>Monthly</option>
+                        <option value="quarterly" {% if dataset.maintenance_frequency == 'quarterly' %}selected{% endif %}>Quarterly</option>
+                        <option value="biannually" {% if dataset.maintenance_frequency == 'biannually' %}selected{% endif %}>Biannually</option>
+                        <option value="annually" {% if dataset.maintenance_frequency == 'annually' %}selected{% endif %}>Annually</option>
+                        <option value="asNeeded" {% if dataset.maintenance_frequency == 'asNeeded' %}selected{% endif %}>As Needed</option>
+                        <option value="irregular" {% if dataset.maintenance_frequency == 'irregular' %}selected{% endif %}>Irregular</option>
+                        <option value="notPlanned" {% if dataset.maintenance_frequency == 'notPlanned' %}selected{% endif %}>Not Planned</option>
+                        <option value="unknown" {% if dataset.maintenance_frequency == 'unknown' %}selected{% endif %}>Unknown</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="character_set" class="block text-sm font-medium text-gray-700 mb-1">Character Set</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                            id="character_set" name="character_set">
+                        <option value="">Select Character Set</option>
+                        <option value="UTF-8" {% if dataset.character_set == 'UTF-8' %}selected{% endif %}>UTF-8</option>
+                        <option value="UTF-16" {% if dataset.character_set == 'UTF-16' %}selected{% endif %}>UTF-16</option>
+                        <option value="ISO-8859-1" {% if dataset.character_set == 'ISO-8859-1' %}selected{% endif %}>ISO-8859-1</option>
+                        <option value="ISO-8859-2" {% if dataset.character_set == 'ISO-8859-2' %}selected{% endif %}>ISO-8859-2</option>
+                        <option value="ISO-8859-15" {% if dataset.character_set == 'ISO-8859-15' %}selected{% endif %}>ISO-8859-15</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h3 class="text-lg font-medium text-gray-900 mb-3">Distribution Information</h3>
+                <div class="mb-4">
+                    <label for="data_format" class="block text-sm font-medium text-gray-700 mb-1">Data Format</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                            id="data_format" name="data_format[]" multiple>
+                        <option value="shapefile" {% if 'shapefile' in dataset.data_format %}selected{% endif %}>Shapefile</option>
+                        <option value="geopackage" {% if 'geopackage' in dataset.data_format %}selected{% endif %}>GeoPackage</option>
+                        <option value="geotiff" {% if 'geotiff' in dataset.data_format %}selected{% endif %}>GeoTIFF</option>
+                        <option value="ecw" {% if 'ecw' in dataset.data_format %}selected{% endif %}>ECW</option>
+                        <option value="jp2" {% if 'jp2' in dataset.data_format %}selected{% endif %}>JPEG2000</option>
+                        <option value="sid" {% if 'sid' in dataset.data_format %}selected{% endif %}>MrSID</option>
+                        <option value="asc" {% if 'asc' in dataset.data_format %}selected{% endif %}>ASCII Grid</option>
+                        <option value="nc" {% if 'nc' in dataset.data_format %}selected{% endif %}>NetCDF</option>
+                        <option value="wms" {% if 'wms' in dataset.data_format %}selected{% endif %}>WMS</option>
+                        <option value="wfs" {% if 'wfs' in dataset.data_format %}selected{% endif %}>WFS</option>
+                        <option value="wcs" {% if 'wcs' in dataset.data_format %}selected{% endif %}>WCS</option>
+                        <option value="qgs" {% if 'qgs' in dataset.data_format %}selected{% endif %}>QGIS</option>
+                        <option value="other" {% if 'other' in dataset.data_format %}selected{% endif %}>Other</option>
+                    </select>
+                    <p class="mt-1 text-sm text-gray-500">Hold Ctrl/Cmd to select multiple formats</p>
+                </div>
+                <div class="mb-4">
+                    <label for="distribution_url" class="block text-sm font-medium text-gray-700 mb-1">Distribution URL</label>
+                    <input type="url" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                           id="distribution_url" name="distribution_url" placeholder="Download or access URL"
+                           value="{{ dataset.distribution_url|default('') }}">
+                </div>
+                <div class="mb-4">
+                    <label for="coupled_resource" class="block text-sm font-medium text-gray-700 mb-1">Coupled Resource</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                           id="coupled_resource" name="coupled_resource" placeholder="Associated dataset if metadata is for a service"
+                           value="{{ dataset.coupled_resource|default('') }}">
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end space-x-4">
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                {% if is_edit %}Update{% else %}Save{% endif %} Metadata
+            </button>
+            <button type="button" onclick="exportToXML()" 
+                    class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                Export to ISO 19115 + INSPIRE XML
+            </button>
+        </div>
+    </form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ol@v7.4.0/dist/ol.js"></script>
+<script>
+    let wmsLayer = null;
+    // Initialize OpenLayers map
+    const map = new ol.Map({
+        target: 'map',
+        layers: [
+            new ol.layer.Tile({
+                source: new ol.source.OSM()
+            })
+        ],
+        view: new ol.View({
+            center: ol.proj.fromLonLat([
+                {% if dataset.west_longitude and dataset.east_longitude %}
+                    {{ ((dataset.west_longitude + dataset.east_longitude) / 2)|default(0) }},
+                {% else %}0,{% endif %}
+                {% if dataset.south_latitude and dataset.north_latitude %}
+                    {{ ((dataset.south_latitude + dataset.north_latitude) / 2)|default(0) }}
+                {% else %}0{% endif %}
+            ]),
+            zoom: 5
+        })
+    });
+
+    // If in edit mode and we have WMS info, initialize the layer select
+    {% if is_edit and dataset.wms_url and dataset.wms_layer %}
+    document.addEventListener('DOMContentLoaded', function() {
+        const wmsUrl = document.getElementById('wms_url');
+        const layerSelect = document.getElementById('wms_layer');
+        const layerSelectContainer = document.getElementById('layerSelectContainer');
+        
+        // Show the layer select container
+        layerSelectContainer.classList.remove('hidden');
+        
+        // Fetch layers for the WMS service
+        fetch('/wms/capabilities', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ url: wmsUrl.value })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.status === 'success') {
+                // Populate the layer select
+                result.layers.forEach(layer => {
+                    const option = document.createElement('option');
+                    option.value = layer.name;
+                    option.textContent = layer.title;
+                    option.dataset.metadata = JSON.stringify(layer);
+                    if (layer.name === '{{ dataset.wms_layer }}') {
+                        option.selected = true;
+                    }
+                    layerSelect.appendChild(option);
+                });
+                
+                // Trigger the change event to update the map
+                layerSelect.dispatchEvent(new Event('change'));
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching WMS layers:', error);
+        });
+    });
+    {% endif %}
+
+    function exportToXML() {
+        const metadataId = new URLSearchParams(window.location.search).get('id');
+        if (metadataId) {
+            window.location.href = `/metadata/${metadataId}/xml`;
+        } else {
+            alert('Please save the metadata first before exporting to XML');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, setting up form handlers');
+        
+        const form = document.getElementById('metadataForm');
+        const gisFilesInput = document.getElementById('gis_files');
+        const thumbnailInput = document.getElementById('thumbnail');
+        
+        if (!form) {
+            console.error('Form element not found!');
+            return;
+        }
+        
+        // Handle GIS file selection and spatial extent extraction
+        if (gisFilesInput) {
+            gisFilesInput.addEventListener('change', async function(e) {
+                e.preventDefault();
+                console.log('GIS files selected:', this.files);
+                
+                if (this.files.length === 0) {
+                    return;
+                }
+
+                // Validate file types
+                const allowedTypes = ['.zip', '.shp', '.gpkg', '.tif', '.tiff', '.geotiff', '.img', '.ecw', '.jp2', '.sid', '.asc', '.grd', '.nc'];
+                const invalidFiles = Array.from(this.files).filter(file => {
+                    const ext = '.' + file.name.split('.').pop().toLowerCase();
+                    return !allowedTypes.includes(ext);
+                });
+
+                if (invalidFiles.length > 0) {
+                    alert('Invalid file type(s): ' + invalidFiles.map(f => f.name).join(', ') + 
+                          '\nSupported formats: Shapefile (.zip), GeoPackage (.gpkg), GeoTIFF (.tif, .tiff), ' +
+                          'ECW (.ecw), JPEG2000 (.jp2), MrSID (.sid), ASCII Grid (.asc), NetCDF (.nc)');
+                    this.value = ''; // Clear the input
+                    return;
+                }
+
+                // Create FormData for spatial extent extraction only
+                const formData = new FormData();
+                for (let i = 0; i < this.files.length; i++) {
+                    formData.append('gis_files[]', this.files[i]);
+                    console.log('Added file to FormData for extent extraction:', this.files[i].name);
+                }
+                
+                try {
+                    // Send files to server for spatial extent extraction only
+                    console.log('Sending files for spatial extent extraction');
+                    const response = await fetch('/metadata/extract-spatial-extent', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    console.log('Response status:', response.status);
+                    const responseText = await response.text();
+                    console.log('Raw response text:', responseText);
+                    
+                    let result;
+                    try {
+                        result = JSON.parse(responseText);
+                        console.log('Parsed response:', result);
+                    } catch (error) {
+                        console.error('Error parsing JSON response:', error);
+                        console.error('Response text was:', responseText);
+                        throw new Error('Invalid server response: ' + responseText);
+                    }
+                    
+                    if (result.status === 'success' && result.spatial_extent) {
+                        // Update the form fields with the extracted extents
+                        const { west_longitude, east_longitude, south_latitude, north_latitude, coordinate_system } = result.spatial_extent;
+                        console.log('Extracted extents:', result.spatial_extent);
+                        
+                        document.getElementById('is_qgis_project').value = result.is_qgis_project;
+                        if(result.wms_url){
+                            document.getElementById('wms_url').value = result.wms_url;
+                            document.getElementById('fetchLayersBtn').click();
+                        }
+                        
+                        document.getElementById('west_longitude').value = west_longitude;
+                        document.getElementById('east_longitude').value = east_longitude;
+                        document.getElementById('south_latitude').value = south_latitude;
+                        document.getElementById('north_latitude').value = north_latitude;
+                        if(coordinate_system != null){
+                            document.getElementById('coordinate_system').value = coordinate_system;
+                        }
+                        
+                        // Update the map view
+                        const extent = [west_longitude, south_latitude, east_longitude, north_latitude];
+                        console.log('Original extent:', extent);
+                        
+                        // Transform the extent from EPSG:4326 to EPSG:3857
+                        const transformedExtent = ol.proj.transformExtent(extent, 'EPSG:4326', 'EPSG:3857');
+                        console.log('Transformed extent:', transformedExtent);
+                        
+                        // Create a feature with the transformed extent
+                        const extentFeature = new ol.Feature({
+                            geometry: new ol.geom.Polygon.fromExtent(transformedExtent)
+                        });
+                        
+                        // Remove any existing extent layer
+                        map.getLayers().forEach(layer => {
+                            if (layer.get('name') === 'extent') {
+                                map.removeLayer(layer);
+                            }
+                        });
+                        
+                        // Add new extent layer
+                        const extentLayer = new ol.layer.Vector({
+                            name: 'extent',
+                            source: new ol.source.Vector({
+                                features: [extentFeature]
+                            }),
+                            style: new ol.style.Style({
+                                stroke: new ol.style.Stroke({
+                                    color: 'rgba(255, 0, 0, 1.0)',
+                                    width: 2
+                                }),
+                                fill: new ol.style.Fill({
+                                    color: 'rgba(255, 0, 0, 0.1)'
+                                })
+                            })
+                        });
+                        map.addLayer(extentLayer);
+                        
+                        // Fit map to transformed extent
+                        map.getView().fit(transformedExtent, {
+                            padding: [50, 50, 50, 50],
+                            maxZoom: 15,
+                            duration: 1000
+                        });
+                        
+                        // Show success message
+                        const uploadedFilesDiv = document.getElementById('uploadedFiles');
+                        uploadedFilesDiv.innerHTML = `
+                            <div class="bg-green-50 p-4 rounded-md">
+                                <p class="text-sm text-green-700">
+                                    Spatial extents extracted successfully:<br>
+                                    West: ${west_longitude}<br>
+                                    East: ${east_longitude}<br>
+                                    South: ${south_latitude}<br>
+                                    North: ${north_latitude}
+                                </p>
+                            </div>`;
+                            
+                        // Also show the selected files
+                        Array.from(this.files).forEach(file => {
+                            const fileDiv = document.createElement('div');
+                            fileDiv.className = 'bg-gray-50 p-4 rounded-md mt-2';
+                            fileDiv.innerHTML = `
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h4 class="text-sm font-medium text-gray-900">${file.name}</h4>
+                                        <p class="text-sm text-gray-500">
+                                            Type: ${file.name.split('.').pop().toLowerCase()}<br>
+                                            Size: ${(file.size / 1024).toFixed(2)} KB
+                                        </p>
+                                    </div>
+                                </div>`;
+                            uploadedFilesDiv.appendChild(fileDiv);
+                        });
+                    } else {
+                        throw new Error(result.message || 'Error extracting spatial extents');
+                    }
+                } catch (error) {
+                    console.error('Error in spatial extent extraction:', error);
+                    const uploadedFilesDiv = document.getElementById('uploadedFiles');
+                    uploadedFilesDiv.innerHTML = `
+                        <div class="bg-red-50 p-4 rounded-md">
+                            <p class="text-sm text-red-700">
+                                Error extracting spatial extents: ${error.message}
+                            </p>
+                        </div>`;
+                }
+            });
+        }
+        
+        // Handle thumbnail selection
+        if (thumbnailInput) {
+            thumbnailInput.addEventListener('change', function(e) {
+                e.preventDefault();
+                console.log('Thumbnail selected:', this.files);
+                
+                if (this.files.length === 0) {
+                    return;
+                }
+
+                // Validate file type
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                const file = this.files[0];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Invalid file type. Please upload a JPEG, PNG, or GIF image.');
+                    this.value = ''; // Clear the input
+                    return;
+                }
+
+                // Update UI to show selected thumbnail
+                const uploadedFilesDiv = document.getElementById('uploadedFiles');
+                const thumbnailDiv = document.createElement('div');
+                thumbnailDiv.className = 'bg-gray-50 p-4 rounded-md';
+                thumbnailDiv.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900">${file.name}</h4>
+                            <p class="text-sm text-gray-500">
+                                Type: Thumbnail (${file.type})<br>
+                                Size: ${(file.size / 1024).toFixed(2)} KB
+                            </p>
+                        </div>
+                    </div>`;
+                uploadedFilesDiv.appendChild(thumbnailDiv);
+            });
+        }
+        
+        // Handle form submission
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Form submit event triggered');
+            
+            const formData = new FormData(this);
+            const isEdit = {% if is_edit %}true{% else %}false{% endif %};
+            
+            try {
+                // Use the correct URL for metadata updates
+                const url = isEdit ? `/metadata/{{ dataset.id }}/update` : '/metadata';
+                const method = isEdit ? 'PUT' : 'POST';
+                
+                console.log('Submitting to URL:', url);
+                console.log('Using method:', method);
+                
+                // For PUT requests, we need to handle both JSON data and file uploads
+                if (isEdit) {
+                    // Check if there are any files to upload
+                    const hasFiles = formData.get('thumbnail')?.size > 0 || 
+                                   Array.from(formData.getAll('gis_files[]')).some(file => file.size > 0);
+                    
+                    if (hasFiles) {
+                        // If there are files, send as FormData with _method=PUT
+                        formData.append('_method', 'PUT');
+                        const response = await fetch(url, {
+                            method: 'POST', // Use POST for file uploads
+                            body: formData
+                        });
+                        
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            console.error('Server response:', errorText);
+                            throw new Error(errorText || 'Server error');
+                        }
+                        
+                        const result = await response.json();
+                        console.log('Update response:', result);
+                        
+                        if (result.status === 'success') {
+                            window.location.href = `/datasets/${result.id}`;
+                        } else {
+                            throw new Error(result.message || 'Error updating metadata');
+                        }
+                    } else {
+                        // If no files, send as JSON
+                        const jsonData = {};
+                        formData.forEach((value, key) => {
+                            // Handle arrays (like data_format)
+                            if (key.endsWith('[]')) {
+                                const baseKey = key.slice(0, -2);
+                                if (!jsonData[baseKey]) {
+                                    jsonData[baseKey] = [];
+                                }
+                                jsonData[baseKey].push(value);
+                            } else {
+                                jsonData[key] = value;
+                            }
+                        });
+                        
+                        console.log('Sending update data:', jsonData);
+                        
+                        const response = await fetch(url, {
+                            method: method,
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(jsonData)
+                        });
+                        
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            console.error('Server response:', errorText);
+                            throw new Error(errorText || 'Server error');
+                        }
+                        
+                        const result = await response.json();
+                        console.log('Update response:', result);
+                        
+                        if (result.status === 'success') {
+                            window.location.href = `/datasets/${result.id}`;
+                        } else {
+                            throw new Error(result.message || 'Error updating metadata');
+                        }
+                    }
+                } else {
+                    // For POST requests (new records), send FormData as is
+                    console.log('Sending POST request with FormData');
+                    
+                    // Show loading state
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    const originalButtonText = submitButton.textContent;
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Saving...';
+                    
+                    try {
+                        const response = await fetch(url, {
+                            method: method,
+                            body: formData
+                        });
+                        
+                        console.log('Response received:', response.status);
+                        const responseText = await response.text();
+                        console.log('Response text:', responseText);
+                        
+                        let result;
+                        try {
+                            result = JSON.parse(responseText);
+                        } catch (error) {
+                            console.error('Error parsing JSON response:', error);
+                            throw new Error('Invalid server response: ' + responseText);
+                        }
+
+                        if (result.status === 'success') {
+                            // If we have spatial extents from the uploaded files, update the map
+                            if (result.files && result.files.some(f => f.west_longitude !== null)) {
+                                const filesWithExtent = result.files.filter(f => f.west_longitude !== null);
+                                if (filesWithExtent.length > 0) {
+                                    // Use the first file's extent for now
+                                    const { west_longitude, east_longitude, south_latitude, north_latitude } = filesWithExtent[0];
+                                    
+                                    // Update the map view
+                                    const extent = [west_longitude, south_latitude, east_longitude, north_latitude];
+                                    const transformedExtent = ol.proj.transformExtent(extent, 'EPSG:4326', 'EPSG:3857');
+                                    
+                                    // Create a feature with the transformed extent
+                                    const extentFeature = new ol.Feature({
+                                        geometry: new ol.geom.Polygon.fromExtent(transformedExtent)
+                                    });
+                                    
+                                    // Remove any existing extent layer
+                                    map.getLayers().forEach(layer => {
+                                        if (layer && layer.get('name') === 'extent') {
+                                            map.removeLayer(layer);
+                                        }
+                                    });
+                                    
+                                    // Add new extent layer
+                                    const extentLayer = new ol.layer.Vector({
+                                        name: 'extent',
+                                        source: new ol.source.Vector({
+                                            features: [extentFeature]
+                                        }),
+                                        style: new ol.style.Style({
+                                            stroke: new ol.style.Stroke({
+                                                color: 'rgba(255, 0, 0, 1.0)',
+                                                width: 2
+                                            }),
+                                            fill: new ol.style.Fill({
+                                                color: 'rgba(255, 0, 0, 0.1)'
+                                            })
+                                        })
+                                    });
+                                    map.addLayer(extentLayer);
+                                    
+                                    // Fit map to transformed extent
+                                    map.getView().fit(transformedExtent, {
+                                        padding: [50, 50, 50, 50],
+                                        maxZoom: 15,
+                                        duration: 1000
+                                    });
+                                }
+                            }
+                            
+                            // Update the uploaded files display
+                            const uploadedFilesDiv = document.getElementById('uploadedFiles');
+                            uploadedFilesDiv.innerHTML = ''; // Clear previous content
+                            
+                            result.files.forEach(file => {
+                                const fileDiv = document.createElement('div');
+                                fileDiv.className = 'bg-gray-50 p-4 rounded-md';
+                                fileDiv.innerHTML = `
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <h4 class="text-sm font-medium text-gray-900">${file.file_name}</h4>
+                                            <p class="text-sm text-gray-500">
+                                                Type: ${file.file_type}<br>
+                                                Size: ${(file.file_size / 1024).toFixed(2)} KB
+                                            </p>
+                                            ${file.west_longitude !== null ? `
+                                            <p class="text-sm text-gray-500 mt-2">
+                                                Extent:<br>
+                                                West: ${file.west_longitude}<br>
+                                                East: ${file.east_longitude}<br>
+                                                South: ${file.south_latitude}<br>
+                                                North: ${file.north_latitude}
+                                            </p>
+                                            ` : ''}
+                                        </div>
+                                    </div>`;
+                                uploadedFilesDiv.appendChild(fileDiv);
+                            });
+                            
+                            // Clear the file inputs
+                            document.getElementById('gis_files').value = '';
+                            document.getElementById('thumbnail').value = '';
+                            
+                            // Redirect to the dataset view
+                            window.location.href = `/datasets/${result.id}`;
+                        } else {
+                            throw new Error(result.message || 'Error saving metadata');
+                        }
+                    } finally {
+                        // Restore button state
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalButtonText;
+                    }
+                }
+            } catch (error) {
+                console.error('Error in form submission:', error);
+                alert(error.message || 'An error occurred while saving the metadata');
+            }
+        });
+        
+        console.log('Form handlers attached');
+    });
+
+    // WMS Layer Selection functionality
+    document.getElementById('fetchLayersBtn').addEventListener('click', async function() {
+        const wmsUrl = document.getElementById('wms_url').value;
+        if (!wmsUrl) {
+            alert('Please enter a WMS service URL');
+            return;
+        }
+
+        try {
+            const response = await fetch('/wms/capabilities', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url: wmsUrl })
+            });
+
+            const result = await response.json();
+            if (result.status === 'success') {
+                const layerSelect = document.getElementById('wms_layer');
+                layerSelect.innerHTML = '<option value="">Select a layer...</option>';
+                
+                // Store service metadata for later use
+                layerSelect.dataset.serviceMetadata = JSON.stringify(result.service);
+                
+                result.layers.forEach(layer => {
+                    const option = document.createElement('option');
+                    option.value = layer.name;
+                    option.textContent = layer.title;
+                    option.dataset.metadata = JSON.stringify(layer);
+                    layerSelect.appendChild(option);
+                });
+
+                document.getElementById('layerSelectContainer').classList.remove('hidden');
+
+                // Populate service-level metadata
+                const serviceMetadata = result.service;
+                if (serviceMetadata.title && !document.getElementById('title').value) {
+                    document.getElementById('title').value = serviceMetadata.title;
+                }
+                if (serviceMetadata.abstract && !document.getElementById('abstract').value) {
+                    document.getElementById('abstract').value = serviceMetadata.abstract;
+                }
+                if (serviceMetadata.keywords && serviceMetadata.keywords.length > 0 && !document.getElementById('keywords').value) {
+                    document.getElementById('keywords').value = serviceMetadata.keywords.join(', ');
+                }
+                if (serviceMetadata.responsible_org && !document.getElementById('responsible_org').value) {
+                    document.getElementById('responsible_org').value = serviceMetadata.responsible_org;
+                }
+                if (serviceMetadata.responsible_person && !document.getElementById('responsible_person').value) {
+                    document.getElementById('responsible_person').value = serviceMetadata.responsible_person;
+                }
+                if (serviceMetadata.role && !document.getElementById('role').value) {
+                    document.getElementById('role').value = serviceMetadata.role;
+                }
+                if (serviceMetadata.spatial_data_service_url && !document.getElementById('spatial_data_service_url').value) {
+                    document.getElementById('spatial_data_service_url').value = serviceMetadata.spatial_data_service_url;
+                }
+            } else {
+                alert('Error fetching layers: ' + result.message);
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    });
+
+    document.getElementById('wms_layer').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.value) {
+            const layerMetadata = JSON.parse(selectedOption.dataset.metadata);
+            
+            // Update spatial extent fields
+            document.getElementById('west_longitude').value = layerMetadata.bbox[0];
+            document.getElementById('south_latitude').value = layerMetadata.bbox[1];
+            document.getElementById('east_longitude').value = layerMetadata.bbox[2];
+            document.getElementById('north_latitude').value = layerMetadata.bbox[3];
+
+            // Update other metadata fields if they're empty
+            if (layerMetadata.title && !document.getElementById('title').value) {
+                document.getElementById('title').value = layerMetadata.title;
+            }
+            if (layerMetadata.abstract && !document.getElementById('abstract').value) {
+                document.getElementById('abstract').value = layerMetadata.abstract;
+            }
+            if (layerMetadata.keywords && layerMetadata.keywords.length > 0 && !document.getElementById('keywords').value) {
+                document.getElementById('keywords').value = layerMetadata.keywords.join(', ');
+            }
+            if (layerMetadata.coordinate_system && !document.getElementById('coordinate_system').value) {
+                document.getElementById('coordinate_system').value = layerMetadata.coordinate_system;
+            }
+
+            // Update map
+            if (wmsLayer) {
+                map.removeLayer(wmsLayer);
+            }
+
+            const wmsUrl = document.getElementById('wms_url').value;
+            wmsLayer = new ol.layer.Tile({
+                source: new ol.source.TileWMS({
+                    url: wmsUrl,
+                    params: {
+                        'LAYERS': selectedOption.value,
+                        'TILED': true
+                    },
+                    serverType: 'geoserver'
+                })
+            });
+
+            map.addLayer(wmsLayer);
+
+            // Fit map to layer extent
+            const extent = ol.proj.transformExtent(
+                layerMetadata.bbox,
+                'EPSG:4326',
+                'EPSG:3857'
+            );
+            map.getView().fit(extent, { padding: [50, 50, 50, 50] });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,27 @@
+{
+    "wms_url": "https:\/\/services.geodataoverijssel.nl\/geoserver\/LIP\/wms",
+    "wms_layer": "LIP_Bestaande_open_bodemenergiesystemen",
+    "title": "Bestaande open bodemenergiesystemen",
+    "abstract": "Open bodemenergiesystemen maken gebruik van zandpakketten in de ondergrond tot een maximale diepte van circa 250 meter beneden maaiveld (m-mv). De landelijke bodemgeschiktheidskaarten voor open systemen (opgesteld in opdracht van RVO ten behoeve van de Warmteatlas) is gebaseerd op het toepassen van bodemenergie tot deze diepte. In de Warmteatlas wordt de energie die uit de bodem ontrokken kan worden weergegeven. In de bodemgeschiktheidskaart voor Overijssel wordt de energie die vanuit de bodem geleverd kan worden met een behulp van een warmtepomp (met een COP van 4) weergegeven. De bodemgeschiktheid inclusief toepassing van een warmtepomp geeft een indicatie van de hoeveelheid energie die benut kan worden door toepassing van een open systeem in combinate met het gebruik van een warmtepomp. De bodemgeschiktheid is bepaald op basis van de totale beschikbare dikte aan zandpakketten tot 250 m-mv. De bodem boven de gemiddelde grondwaterstand (REGIS) is hierin niet meegenomen. Aangenomen is dat filters over 80% van de totale dikte van het pakket geplaatst kunnen worden en dat er in de systemen uitgegaan wordt van een energiebalans. Regionaal kan de diepte tot waar een open systeem geplaatst kan worden, beperkt zijn door wet- en regelgeving. Voor meer informatie met betrekking tot de berekening van het potentieel wordt verwezen naar de Warmteatlas (http:\/\/rvo.b3p.nl\/viewer\/app\/Warmteatlas\/v2).",
+    "keywords": "bodemenergie, systemen, energie",
+    "lineage": "Data harvested from WMS service: https:\/\/services.geodataoverijssel.nl\/geoserver\/LIP\/wms",
+    "resource_type": "service",
+    "metadata_date": "2025-07-07",
+    "metadata_language": "eng",
+    "contact_org": null,
+    "service_url": "https:\/\/services.geodataoverijssel.nl\/geoserver\/LIP\/wms",
+    "data_format": [
+        "WMS"
+    ],
+    "distribution_url": "https:\/\/services.geodataoverijssel.nl\/geoserver\/LIP\/wms",
+    "citation_date": "2025-07-07",
+    "responsible_org": "Novella GIS",
+    "responsible_person": "System",
+    "role": "Data Provider",
+    "west_longitude": 5.869481,
+    "east_longitude": 6.912716,
+    "south_latitude": 52.198071,
+    "north_latitude": 52.818449,
+    "harvested_at": "2025-07-07T06:55:41+00:00",
+    "dataset_id": null
+}

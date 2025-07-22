@@ -1,0 +1,27 @@
+{
+    "wms_url": "https:\/\/services.geodataoverijssel.nl\/geoserver\/LIP\/wms",
+    "wms_layer": "LIP_Gevoelstemperatuur_Twents_waternet",
+    "title": "Gevoelstemperatuur Twents waternet",
+    "abstract": "Deze kaartlaag (Twentswaternet)) geeft aan waar hittestress kan optreden tijdens zomerse dagen. De kaart toont de gevoelstemperatuur (de Physical Equivalent Temperature, kortweg PET) op een warme dag die 1 keer per 1000 zomerdagen voorkomt in het huidige klimaat (onder een zomerdag valt de periode van 1 april tot en met 30 september). De rode gebieden zijn zeer gevoelig voor hittestress, de groene gebieden nauwelijks.",
+    "keywords": "hittestress, twents, waternet, gevoelstemperatuur",
+    "lineage": "Data harvested from WMS service: https:\/\/services.geodataoverijssel.nl\/geoserver\/LIP\/wms",
+    "resource_type": "service",
+    "metadata_date": "2025-07-07",
+    "metadata_language": "eng",
+    "contact_org": null,
+    "service_url": "https:\/\/services.geodataoverijssel.nl\/geoserver\/LIP\/wms",
+    "data_format": [
+        "WMS"
+    ],
+    "distribution_url": "https:\/\/services.geodataoverijssel.nl\/geoserver\/LIP\/wms",
+    "citation_date": "2025-07-07",
+    "responsible_org": "Novella GIS",
+    "responsible_person": "System",
+    "role": "Data Provider",
+    "west_longitude": 6.290764,
+    "east_longitude": 7.216058,
+    "south_latitude": 52.02446,
+    "north_latitude": 52.574065,
+    "harvested_at": "2025-07-07T06:55:41+00:00",
+    "dataset_id": null
+}

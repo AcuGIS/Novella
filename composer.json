@@ -1,0 +1,26 @@
+{
+    "name": "novella/gis-metadata-manager",
+    "description": "GIS Metadata Management System with ISO 19115 + INSPIRE support",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "ext-pgsql": "*",
+        "ext-json": "*",
+        "ext-curl": "*",
+        "ext-simplexml": "*",
+        "vlucas/phpdotenv": "^5.5",
+        "slim/slim": "^4.11",
+        "slim/psr7": "^1.6",
+        "php-di/php-di": "^7.0",
+        "slim/php-view": "^3.2",
+        "respect/validation": "^2.2",
+        "slim/twig-view": "^3.4",
+        "tecnickcom/tcpdf": "^6.10",
+        "guzzlehttp/psr7": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Novella\\": "src/"
+        }
+    }
+}

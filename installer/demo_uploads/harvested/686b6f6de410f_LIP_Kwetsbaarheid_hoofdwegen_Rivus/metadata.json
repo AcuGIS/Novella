@@ -1,0 +1,27 @@
+{
+    "wms_url": "https:\/\/services.geodataoverijssel.nl\/geoserver\/LIP\/wms",
+    "wms_layer": "LIP_Kwetsbaarheid_hoofdwegen_Rivus",
+    "title": "Begaanbaarheid hoofdwegen RIVUS",
+    "abstract": "Bij een hevige regenbui kan het water op straat zo hoog komen dat de weg onbegaanbaar wordt. De begaanbaarheidskaart laat zien welke wegen begaanbaar zijn bij dezelfde bui als waar de wateroverlastkaart op gebaseerd is: 60 millimeter in een uur. Wegen zijn geclassificeerd als 'begaanbaar' als er een maximale waterdiepte is van 10 centimeter (groen). Bij waterdieptes tussen de 10 en 30 centimeter zijn de wegen geclassificeerd als 'begaanbaar voor calamiteitenverkeer' (geel). Wegen met waterdieptes van 30 centimeter en meer zijn 'onbegaanbaar' (rood). De belangrijkste ontsluitingsroutes zijn dikker weergegeven.",
+    "keywords": "begaanbaar, rivus, verkeer, water",
+    "lineage": "Data harvested from WMS service: https:\/\/services.geodataoverijssel.nl\/geoserver\/LIP\/wms",
+    "resource_type": "service",
+    "metadata_date": "2025-07-07",
+    "metadata_language": "eng",
+    "contact_org": null,
+    "service_url": "https:\/\/services.geodataoverijssel.nl\/geoserver\/LIP\/wms",
+    "data_format": [
+        "WMS"
+    ],
+    "distribution_url": "https:\/\/services.geodataoverijssel.nl\/geoserver\/LIP\/wms",
+    "citation_date": "2025-07-07",
+    "responsible_org": "Novella GIS",
+    "responsible_person": "System",
+    "role": "Data Provider",
+    "west_longitude": 5.856562,
+    "east_longitude": 6.378535,
+    "south_latitude": 52.236223,
+    "north_latitude": 52.683892,
+    "harvested_at": "2025-07-07T06:55:41+00:00",
+    "dataset_id": null
+}
