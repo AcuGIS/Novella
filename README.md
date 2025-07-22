@@ -26,9 +26,10 @@ Novella is a lightweight Spatial Data Catalogue and Portal
 1. Install PostgreSQL and Novella with demo:
 
 ```bash
-cd novella
-./installer/postgres.sh
-./installer/novella_ubuntu24.sh
+   git clone https://github.com/AcuGIS/Novella.git
+   cd novella
+   ./installer/postgres.sh
+   ./installer/novella_ubuntu24.sh
 ```
 
 2. To skip demo or qgis support use --no-demo and/or --no-qgis option:
